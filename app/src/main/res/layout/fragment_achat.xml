@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".Menu.FragmentAchat">
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:orientation="horizontal"
+       android:padding="10dp">
+
+       <com.google.android.material.textfield.TextInputLayout
+           style="@style/Widget.LetGo.TextInputLayout"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginRight="10dp"
+           android:layout_weight="1">
+
+           <EditText
+               android:id="@+id/achat_date_debut"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:hint="Date debut"
+               android:inputType="date"/>
+
+       </com.google.android.material.textfield.TextInputLayout>
+       <com.google.android.material.textfield.TextInputLayout
+           style="@style/Widget.LetGo.TextInputLayout"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginLeft="10dp"
+           android:layout_weight="1">
+
+           <EditText
+               android:id="@+id/achat_date_fin"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:hint="Date fin"
+               android:inputType="date"/>
+
+       </com.google.android.material.textfield.TextInputLayout>
+
+   </LinearLayout>
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:orientation="horizontal"
+       android:padding="10dp"
+       android:background="@color/kaki">
+
+       <TextView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="Libellé"
+           android:textColor="@color/white"
+           android:textStyle="bold"
+           android:layout_weight="1"/>
+       <TextView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="Date"
+           android:textColor="@color/white"
+           android:textStyle="bold"
+           android:layout_weight="1"/>
+       <TextView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="Montant achat"
+           android:textColor="@color/white"
+           android:textStyle="bold"
+           android:layout_weight="1"/>
+
+   </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:padding="10dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/achat_journalier_recycle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</LinearLayout>
