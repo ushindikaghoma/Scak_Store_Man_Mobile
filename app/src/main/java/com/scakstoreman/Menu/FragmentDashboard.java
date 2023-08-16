@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.scakstoreman.R;
 import com.scakstoreman.Releve.TransactionCaisseActivity;
@@ -67,7 +68,7 @@ public class FragmentDashboard extends Fragment {
                              Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-        Button search_all_trans = root.findViewById(R.id.dashboard_view_all_transaction);
+        TextView search_all_trans = root.findViewById(R.id.dashboard_view_all_transaction);
 
         search_all_trans.setOnClickListener(new View.OnClickListener() {
             @Override

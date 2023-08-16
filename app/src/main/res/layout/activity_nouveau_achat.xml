@@ -37,15 +37,14 @@
             android:layout_weight="1">
 
             <TextView
+                android:id="@+id/nouveau_achat_designation_compte"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Fournisseur Local"
                 />
             <TextView
                 android:id="@+id/nouveau_achat_display_compte"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="41101"
                 android:textStyle="bold"
                 android:textSize="20dp"
                 />
@@ -100,6 +99,23 @@
             android:layout_weight="1"/>
     </LinearLayout>
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/linear3"
+        android:layout_marginTop="10dp">
+
+        <ProgressBar
+            android:id="@+id/nouveau_achat_progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/nouveau_achat_recycle_panier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+    <LinearLayout
         android:id="@+id/liner_confirm_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -107,12 +123,14 @@
         android:layout_alignParentBottom="true">
 
         <Button
+            android:id="@+id/nouveau_achat_encash_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="En cash"
             android:layout_weight="1"
             android:layout_marginRight="10dp"/>
         <Button
+            android:id="@+id/nouveau_achat_encredit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="En credit"

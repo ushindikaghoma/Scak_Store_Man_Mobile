@@ -32,6 +32,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
     <LinearLayout
+        android:id="@+id/linear_entete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -54,6 +55,23 @@
             android:textStyle="bold"
             android:layout_weight="1"
             android:gravity="right"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/linear_entete"
+        android:layout_marginTop="10dp">
+
+        <ProgressBar
+            android:id="@+id/progressLoadFournisseur"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
+        <ListView
+            android:id="@+id/dialog_fournisseur_recycle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
     <LinearLayout
