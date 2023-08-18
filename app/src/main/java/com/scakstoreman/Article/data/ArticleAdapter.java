@@ -485,6 +485,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
         panierAttenteResponse.setSommeVente(0);
         panierAttenteResponse.setVente(0);
         panierAttenteResponse.setEntree(totalMontant);
+        panierAttenteResponse.setSommeAchat(totalMontant);
         panierAttenteResponse.setPrixVente(prixRevien);
         panierAttenteResponse.setPrixAchat(prixRevien);
         panierAttenteResponse.setIndexDemarrer(0);

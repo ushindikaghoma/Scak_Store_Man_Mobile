@@ -127,7 +127,7 @@ public class NouveauAchatActivity extends AppCompatActivity {
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
 
-        Toast.makeText(NouveauAchatActivity.this, ""+num_operation, Toast.LENGTH_SHORT);
+        //Toast.makeText(NouveauAchatActivity.this, ""+num_operation, Toast.LENGTH_SHORT);
 
         LoadListePanier(num_operation);
 

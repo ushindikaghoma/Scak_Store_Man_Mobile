@@ -1,5 +1,7 @@
 package com.scakstoreman.Operation;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -15,4 +17,7 @@ public interface OperationConnexion {
     @GET("api/Operation/UpdateEtatOperation")
     Call<String> updateOperation(@Query("valider") int valider,
                               @Query("num_operation") String numOperation);
+    @GET("api/Operation/GetCommandeEnCoursEtValideesParDate")
+    Call<List<OperationResponse>> getListAchatJournalier(@Query("nomUtilisateur") String userName,
+                                                         @Query("date") String dateOperation);
 }

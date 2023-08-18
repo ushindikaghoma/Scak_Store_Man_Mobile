@@ -33,22 +33,23 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:background="@color/black">
 
                     <TextView
                         android:id="@+id/dashboard_designation_caisse"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="CAISSE BUYINGA"
                         android:textStyle="bold"
-                        android:layout_marginLeft="10dp"/>
+                        android:layout_marginLeft="10dp"
+                        android:textColor="@color/white_milk"/>
                     <TextView
                         android:id="@+id/dashboard_numero_compte"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="572045"
                         android:textStyle="bold"
-                        android:layout_marginLeft="10dp"/>
+                        android:layout_marginLeft="10dp"
+                        android:textColor="@color/white_milk"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -63,14 +64,21 @@
                             android:textColor="@color/red"
                             android:textStyle="bold"
                             android:layout_weight="2"/>
+                        <ProgressBar
+                            android:id="@+id/dashboard_progress_load_balance"
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:textColor="@color/red"
+                            android:textStyle="bold"
+                            android:layout_weight="2"/>
                         <TextView
                             android:id="@+id/dashboard_display_balance"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="572045"
                             android:textStyle="bold"
                             android:layout_weight="1"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:textColor="@color/white_milk"/>
 
                     </LinearLayout>
 
@@ -103,7 +111,6 @@
                             android:id="@+id/dashboard_solde_jour"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="$10000"
                             android:textStyle="bold"/>
 
                     </LinearLayout>
@@ -134,7 +141,6 @@
                             android:id="@+id/dashboard_solde_achat"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="$10000"
                             android:textStyle="bold"/>
 
                     </LinearLayout>
@@ -189,7 +195,12 @@
         >
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <ProgressBar
+                android:id="@+id/dashboard_progress_transaction"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/dashboard_recycle_transactions"
                 android:layout_width="match_parent"

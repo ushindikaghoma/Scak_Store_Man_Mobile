@@ -53,6 +53,8 @@ public class PanierAttenteResponse {
     private String numeroBon;
     @SerializedName("Chambre")
     private String codeChambre;
+    @SerializedName("SommeAchat")
+    private double sommeAchat;
 
     public PanierAttenteResponse() {
     }
@@ -255,4 +257,9 @@ public class PanierAttenteResponse {
     }
 
     public void setCodeChambre(String codeChambre){this.codeChambre = codeChambre;}
+    public void setSommeAchat(double sommeAchat)
+    {
+        this.sommeAchat = sommeAchat;
+    }
+
 }

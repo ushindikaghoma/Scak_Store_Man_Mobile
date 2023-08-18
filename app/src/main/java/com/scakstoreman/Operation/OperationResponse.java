@@ -21,8 +21,17 @@ public class OperationResponse {
     private int idTypeOperation;
     @SerializedName("Valider")
     private int valider;
-
+    @SerializedName("totalMontantOp")
+    private double montant;
+    @SerializedName("QteEntree")
+    private double qteEntree;
     public OperationResponse() {
+    }
+
+    public OperationResponse(String libelle, String dateOperation, double montant) {
+        this.libelle = libelle;
+        this.dateOperation = dateOperation;
+        this.montant = montant;
     }
 
     public String getNumOperation() {
@@ -95,5 +104,14 @@ public class OperationResponse {
 
     public void setValider(int valider) {
         this.valider = valider;
+    }
+
+    public double getMontant()
+    {
+        return montant;
+    }
+    public double getQteEntree()
+    {
+        return qteEntree;
     }
 }

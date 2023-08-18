@@ -1,20 +1,37 @@
 package com.scakstoreman.Menu;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
+import com.scakstoreman.Achat.AdapterAchat;
+import com.scakstoreman.Article.data.ArticleResponse;
+import com.scakstoreman.Operation.OperationRepository;
+import com.scakstoreman.Operation.OperationResponse;
 import com.scakstoreman.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,6 +74,15 @@ public class FragmentAchat extends Fragment {
     View root;
     Calendar calendar;
     String date_debut, date_fin, todayDate;
+    RecyclerView recyclerViewAchatJourList;
+    ProgressBar progressBarLoadAchat;
+    OperationRepository operationRepository;
+    AdapterAchat adapterAchat;
+
+    SharedPreferences preferences;
+    public static SharedPreferences.Editor editor;
+    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user;
+    SwipeRefreshLayout refreshListeAchat;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,15 +99,44 @@ public class FragmentAchat extends Fragment {
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_achat, container, false);
 
+        preferences = getActivity().getSharedPreferences("maPreference", MODE_PRIVATE);
+        editor = preferences.edit();
+
+        pref_code_depot = preferences.getString("pref_depot_user","");
+        pref_compte_user = preferences.getString("pref_compte_user","");
+        nom_user = preferences.getString("pref_nom_user","");
+        pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
+
         calendar = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         todayDate = format.format(calendar.getTime());
 
         EditText date_debut = root.findViewById(R.id.achat_date_debut);
         EditText date_fin = root.findViewById(R.id.achat_date_fin);
+        recyclerViewAchatJourList = root.findViewById(R.id.achat_journalier_recycle);
+        progressBarLoadAchat = root.findViewById(R.id.achatProgressLoadAchat);
+        refreshListeAchat = root.findViewById(R.id.achat_swipe_torefresh);
+
+        recyclerViewAchatJourList.setHasFixedSize(true);
+        recyclerViewAchatJourList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        operationRepository = OperationRepository.getInstance();
+        adapterAchat = new AdapterAchat(getContext());
+
+
 
         date_debut.setText(todayDate);
         date_fin.setText(todayDate);
+
+        LoadListeAchatJounalier(nom_user, todayDate, progressBarLoadAchat);
+
+        refreshListeAchat.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                LoadListeAchatJounalier(nom_user, todayDate, progressBarLoadAchat);
+                refreshListeAchat.setRefreshing(false);
+            }
+        });
 
         date_debut.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,6 +197,8 @@ public class FragmentAchat extends Fragment {
                             }
                         },
                         year, month, day);
+
+                LoadListeAchatJounalier(nom_user, date_debut.getText().toString(), progressBarLoadAchat);
                 datePickerDialog.show();
             }
         });
@@ -149,5 +206,41 @@ public class FragmentAchat extends Fragment {
 
 
         return root;
+    }
+
+    public void LoadListeAchatJounalier(String userName, String date, ProgressBar loadAchat)
+    {
+        Call<List<OperationResponse>> call_liste_achat = operationRepository.operationConnexion().getListAchatJournalier(userName, date);
+        loadAchat.setVisibility(View.VISIBLE);
+        call_liste_achat.enqueue(new Callback<List<OperationResponse>>() {
+            @Override
+            public void onResponse(Call<List<OperationResponse>> call, Response<List<OperationResponse>> response) {
+                if (response.isSuccessful())
+                {
+                    loadAchat.setVisibility(View.GONE);
+                    List<OperationResponse> list_local = new ArrayList<>();
+                    for (int a = 0; a < response.body().size(); a++)
+                    {
+                        OperationResponse liste_achat =
+                                new OperationResponse (
+                                        response.body().get(a).getLibelle(),
+                                        response.body().get(a).getDateOperation(),
+                                        response.body().get(a).getMontant()
+                                );
+
+
+                        list_local.add(liste_achat);
+                    }
+                    adapterAchat.setList(list_local);
+                    recyclerViewAchatJourList.setAdapter(adapterAchat);
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OperationResponse>> call, Throwable t) {
+                loadAchat.setVisibility(View.GONE);
+            }
+        });
     }
 }
