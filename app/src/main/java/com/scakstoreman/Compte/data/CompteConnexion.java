@@ -15,7 +15,7 @@ public interface CompteConnexion {
     @GET("api/Compte/ReleveCompteTopTenOp")
     Call<List<CompteResponse>> getTenLastOp(@Query("num_compte") int numCompte);
     @GET("api/Compte/ReleveCompteParDate")
-    Call<List<CompteResponse>> getReleveCompteParDate(@Query("numCompte") int numCompte,
+    Call<List<CompteResponse>> getReleveCompteParDate(@Query("num_compte") int numCompte,
                                             @Query("date_debut") String date_debut,
                                             @Query("date_fin") String date_fin);
 }

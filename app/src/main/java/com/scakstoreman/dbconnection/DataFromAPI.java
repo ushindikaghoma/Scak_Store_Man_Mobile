@@ -31,7 +31,7 @@ public class DataFromAPI extends ConnexionAPI{
             server = ipServeur.toString();
         }
 
-        server = "192.168.1.22/TouchBistroIshango";
+        server = "192.168.1.34/TouchBistroIshango";
 
         postClient = "http://"+server+"/api/Clients/Create";
         //URL = server;

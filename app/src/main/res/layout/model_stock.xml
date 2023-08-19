@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white_milk"
+    android:padding="4dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="5dp"
+        app:cardBackgroundColor="#fff"
+        app:cardElevation="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="1dp"
+        app:contentPadding="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/modelStockProduit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="1dp"
+                    android:layout_weight="1.2"/>
+                <TextView
+                    android:id="@+id/modelStockEnStock"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp"
+                    android:layout_weight="1.2"
+                    android:layout_marginLeft="8dp"/>
+                <TextView
+                    android:id="@+id/modelStockPrixMoyen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp"
+                    android:layout_weight="1.3"
+                    android:layout_marginLeft="8dp"/>
+                <TextView
+                    android:id="@+id/modelStockValeur"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5dp"
+                    android:layout_weight="1.2"
+                    android:layout_marginLeft="8dp"/>
+                <ImageButton
+                    android:id="@+id/modelStockViewFiche"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_weight="1.4"
+                    android:background="@drawable/baseline_view_list_24"/>
+
+
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black"/>
+            <LinearLayout
+                android:id="@+id/modelStock_linear_expedier"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Expedier"
+                    android:textStyle="bold"
+                    android:textSize="20dp"
+                    android:gravity="right"
+                    android:padding="10dp"
+                    android:drawablePadding="10dp"
+                    android:drawableRight="@drawable/baseline_arrow_forward_ios_24"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

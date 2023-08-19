@@ -134,7 +134,8 @@ public class FragmentDashboard extends Fragment {
         search_all_trans.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getActivity(), TransactionCaisseActivity.class));
+                startActivity(new Intent(getActivity(), TransactionCaisseActivity.class)
+                        .putExtra("num_compte", pref_compte_user));
             }
         });
 

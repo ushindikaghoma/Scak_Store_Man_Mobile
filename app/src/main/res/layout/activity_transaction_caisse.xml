@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Menu.FragmentAchat">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +20,7 @@
             android:layout_weight="1">
 
             <EditText
-                android:id="@+id/achat_date_debut"
+                android:id="@+id/transaction_date_debut"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Date debut"
@@ -36,7 +35,7 @@
             android:layout_weight="1">
 
             <EditText
-                android:id="@+id/achat_date_fin"
+                android:id="@+id/transaction_date_fin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Date fin"
@@ -78,11 +77,14 @@
                         android:layout_height="wrap_content"
                         android:text="Balance"/>
                     <TextView
-                        android:id="@+id/dashboard_solde_jour"
+                        android:id="@+id/transaction_display_balance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="$10000"
                         android:textStyle="bold"/>
+                    <ProgressBar
+                        android:id="@+id/transaction_progress_balance"
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"/>
 
                 </LinearLayout>
             </LinearLayout>
@@ -101,7 +103,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp">
+            android:orientation="vertical">
+            <ProgressBar
+                android:id="@+id/transaction_progress_recycle"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/all_transaction_recycle"
                 android:layout_width="match_parent"
