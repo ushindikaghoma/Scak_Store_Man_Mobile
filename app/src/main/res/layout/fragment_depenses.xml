@@ -40,10 +40,9 @@
                         android:layout_height="wrap_content"
                         android:text="Balance"/>
                     <TextView
-                        android:id="@+id/dashboard_solde_jour"
+                        android:id="@+id/depense_display_balance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="$10000"
                         android:textStyle="bold"/>
 
                 </LinearLayout>
@@ -71,10 +70,9 @@
                         android:layout_height="wrap_content"
                         android:text="Dépenses"/>
                     <TextView
-                        android:id="@+id/dashboard_solde_achat"
+                        android:id="@+id/depense_display_solde_depense"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="$10000"
                         android:textStyle="bold"/>
 
                 </LinearLayout>
@@ -82,6 +80,10 @@
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+    <ProgressBar
+        android:id="@+id/progress_for_depense"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -149,6 +151,10 @@
                 android:text="confirmer"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"/>
+            <ProgressBar
+                android:id="@+id/depense_progress"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"/>
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

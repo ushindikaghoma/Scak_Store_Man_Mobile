@@ -28,22 +28,24 @@ public class StockResponse {
 
     public StockResponse(String libelle, String dateOperation, double prixAchat,
                          double qteEntree, double qteSortie) {
-        this.qteEntree = qteEntree;
-        this.qteSortie = qteSortie;
-        this.prixAchat = prixAchat;
         this.libelle = libelle;
         this.dateOperation = dateOperation;
+        this.prixAchat = prixAchat;
+        this.qteEntree = qteEntree;
+        this.qteSortie = qteSortie;
+
     }
 
     public StockResponse(String codeArticle, String designationArticle,
                          String designationDepot, double enStock,
-                         double prixMoyen, double valeurMoyenne) {
+                         double prixMoyen, double valeurMoyenne, double prixAchat) {
         this.codeArticle = codeArticle;
         this.designationArticle = designationArticle;
         this.designationDepot = designationDepot;
         this.enStock = enStock;
         this.prixMoyen = prixMoyen;
         this.valeurMoyenne = valeurMoyenne;
+        this.prixAchat = prixAchat;
     }
 
     public String getCodeArticle() {

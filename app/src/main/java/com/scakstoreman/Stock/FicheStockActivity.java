@@ -143,7 +143,7 @@ public class FicheStockActivity extends AppCompatActivity {
                         },
                         year, month, day);
 
-                LoadListeStock(progressBarLoadFiche, recyclerViewFicheStock, codeArticle,codeDepot,
+                LoadListeStock(progressBarLoadFiche, recyclerViewFicheStock, codeArticle,pref_code_depot,
                         date_debut.getText().toString(), date_fin.getText().toString());
                 datePickerDialog.show();
             }
@@ -181,7 +181,7 @@ public class FicheStockActivity extends AppCompatActivity {
 //                        textView_solde_jour.setText(String.format("$%s", response.body().get(a).getSolde()));
 //                        textView_solde_achat.setText(String.format("$%s", _achat_total));
 
-                        getSupportActionBar().setTitle("Fiche de stock "+response.body().get(a).getDesignationArticle());
+                        //getSupportActionBar().setTitle("Fiche de stock "+response.body().get(a).getDesignationArticle());
 
                         list_local_fiche.add(liste_stock);
                     }

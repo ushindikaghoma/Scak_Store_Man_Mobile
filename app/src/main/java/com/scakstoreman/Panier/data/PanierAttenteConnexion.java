@@ -14,6 +14,9 @@ public interface PanierAttenteConnexion {
 //    @POST("api/Stock/PanierAttenteStation")
     Call<Integer> insertPanierAttenteStation(@Body PanierAttenteResponse panierAttenteResponse);
 
+    @POST("api/Stock/PanierAttenteStation")
+    Call<Integer> savePanierAttenteStation(@Body PanierAttenteResponse panierAttenteResponse);
+
     @GET("api/Stock/GetListeMvtStock")
     //@GET("api/Stock/GetListeMvtStockAttente")
     Call<List<PanierAttenteResponse>> getListePanier(@Query("num_op") String num_op);

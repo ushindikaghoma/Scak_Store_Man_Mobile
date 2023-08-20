@@ -31,7 +31,7 @@ public class DataFromAPI extends ConnexionAPI{
             server = ipServeur.toString();
         }
 
-        server = "192.168.1.34/TouchBistroIshango";
+        server = "192.168.1.22/TouchBistroIshango";
 
         postClient = "http://"+server+"/api/Clients/Create";
         //URL = server;
@@ -890,6 +890,19 @@ public class DataFromAPI extends ConnexionAPI{
         try
         {
             url = "http://"+server+"/api/Compte/GetPrixAbonnesParArticle?numCompte="+numCompte+"&codeArticle="+codeArticle;
+            response = call(url);
+        }catch (Exception e)
+        {
+
+        }
+        return response;
+    }
+
+    public String GetCodeDepot(String designationDepot)
+    {
+        try
+        {
+            url = "http://"+server+"/api/Depot/GetCodeDepot?designationDepot="+designationDepot;
             response = call(url);
         }catch (Exception e)
         {

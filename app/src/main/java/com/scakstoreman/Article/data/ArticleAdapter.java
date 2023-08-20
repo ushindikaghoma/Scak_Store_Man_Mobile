@@ -500,7 +500,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
                 if (response.isSuccessful())
                 {
                     Log.e("MvtStock",""+response);
-                    Toast.makeText(context, "Bien ajouté au panier", Toast.LENGTH_SHORT);
+                    Toast.makeText(context, "Bien ajouté au panier", Toast.LENGTH_SHORT).show();
 
 
 

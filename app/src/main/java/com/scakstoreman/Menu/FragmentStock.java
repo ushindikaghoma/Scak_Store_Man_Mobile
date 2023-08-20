@@ -141,7 +141,8 @@ public class FragmentStock extends Fragment {
                                         response.body().get(a).getDesignationDepot(),
                                         response.body().get(a).getEnStock(),
                                         response.body().get(a).getPrixMoyen(),
-                                        response.body().get(a).getValeurMoyenne()
+                                        response.body().get(a).getValeurMoyenne(),
+                                        response.body().get(a).getPrixAchat()
 
                                 );
 

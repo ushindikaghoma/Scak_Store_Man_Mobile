@@ -37,7 +37,7 @@ public class AdapterFicheStock extends RecyclerView.Adapter<AdapterFicheStock.Fi
     @Override
     public void onBindViewHolder(@NonNull FicheStockListAdapter holder, int position) {
         StockResponse stockResponse = this.list.get(position);
-        holder.textView_libelle.setText("Test"+stockResponse.getLibelle());
+        holder.textView_libelle.setText(stockResponse.getLibelle());
         holder.textView_date_operation.setText(stockResponse.getDateOperation());
         holder.textView_prix_unitaire.setText("P.Unitaire :"+stockResponse.getPrixAchat()+"$");
 
