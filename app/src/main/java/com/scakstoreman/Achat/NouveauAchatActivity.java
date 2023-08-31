@@ -68,7 +68,7 @@ public class NouveauAchatActivity extends AppCompatActivity {
 
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
-    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user,
+    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user, pref_mode_type,
             todayDate, prefix_operation;
 
     Bundle extras;
@@ -126,10 +126,21 @@ public class NouveauAchatActivity extends AppCompatActivity {
         pref_compte_user = preferences.getString("pref_compte_user","");
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
+        pref_mode_type = preferences.getString("pref_mode_type","");
 
         //Toast.makeText(NouveauAchatActivity.this, ""+num_operation, Toast.LENGTH_SHORT);
 
-        LoadListePanier(num_operation);
+        if (pref_mode_type.equals("online"))
+        {
+            LoadListePanier(num_operation);
+        }else if(pref_mode_type.equals("offline"))
+        {
+            // load liste panier sqlite
+            Toast.makeText(NouveauAchatActivity.this, "Pas dispo"+pref_mode_type, Toast.LENGTH_SHORT).show();
+        }else
+        {
+
+        }
 
         rechercheFournisseurBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,7 +157,16 @@ public class NouveauAchatActivity extends AppCompatActivity {
 //                recyclerViewFournisseur.setLayoutManager(new LinearLayoutManager(NouveauAchatActivity.this));
 
 
-                LoadListeFournisseur(loadFournisseur, recyclerViewFournisseur);
+                if (pref_mode_type.equals("online"))
+                {
+                    LoadListeFournisseur(loadFournisseur, recyclerViewFournisseur);
+                }else if (pref_mode_type.equals("offline"))
+                {
+                    // liste fournisseur offline
+                }else
+                {
+
+                }
 
 
 

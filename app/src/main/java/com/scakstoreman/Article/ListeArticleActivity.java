@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,12 +29,26 @@ public class ListeArticleActivity extends AppCompatActivity {
     RecyclerView listArticle;
     ArticleRepository articleRepository;
     ArticleAdapter articleAdapter;
+
+    SharedPreferences preferences;
+    public static SharedPreferences.Editor editor;
+    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user, pref_mode_type,
+            todayDate, prefix_operation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_liste_article);
 
         this.getSupportActionBar().setTitle("Liste des produits");
+
+        preferences = getSharedPreferences("maPreference", MODE_PRIVATE);
+        editor = preferences.edit();
+
+        pref_code_depot = preferences.getString("pref_depot_user","");
+        pref_compte_user = preferences.getString("pref_compte_user","");
+        nom_user = preferences.getString("pref_nom_user","");
+        pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
+        pref_mode_type = preferences.getString("pref_mode_type","");
 
         progressBarLoadArticle = findViewById(R.id.progessLoadArticles);
         listArticle = findViewById(R.id.recycleListeArticle);
@@ -44,7 +59,16 @@ public class ListeArticleActivity extends AppCompatActivity {
         listArticle.setHasFixedSize(true);
         listArticle.setLayoutManager(new LinearLayoutManager(this));
 
-        LoadListeArticle();
+        if (pref_mode_type.equals("online"))
+        {
+            LoadListeArticle();
+        }else if (pref_mode_type.equals("offline"))
+        {
+            //liste article offline
+        }else
+        {
+
+        }
     }
 
     public void LoadListeArticle()

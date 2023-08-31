@@ -1,4 +1,6 @@
-package com.scakstoreman.dbconnection;
+package com.scakstoreman.serveur;
+
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,8 +9,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
+public class DonneesFromMySQL {
+    String adresse = "";
+    String url = "";
+    String response = "";
 
-public class ConnexionAPI {
 
     public static String getDataFromServer(String url){
         String response = " ";
@@ -20,9 +25,12 @@ public class ConnexionAPI {
         return response;
     }
 
-    public static String call(String url){
+
+    private static String call(String url){
         int BUFFER_SIZE = 2000;
         InputStream in = null;
+
+        Log.e("url",url);
 
         try{
             in = OpenHttpConnection(url);
@@ -49,7 +57,7 @@ public class ConnexionAPI {
         return str;
     }
 
-    private static InputStream OpenHttpConnection(String url) throws IOException{
+    private static InputStream OpenHttpConnection(String url) throws IOException {
         InputStream in = null;
         int response = -1;
         URL url1 = new URL(url);
@@ -61,6 +69,7 @@ public class ConnexionAPI {
             httpConn.setAllowUserInteraction(false);
             httpConn.setInstanceFollowRedirects(true);
             httpConn.setRequestMethod("GET");
+            httpConn.setConnectTimeout(10000);
             httpConn.connect();
             response = httpConn.getResponseCode();
             if(response == HttpURLConnection.HTTP_OK){

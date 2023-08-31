@@ -42,6 +42,8 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.7.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.4.0")
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation ("com.fasterxml.jackson.core:jackson-databind:2.7.3")
+    implementation ("com.android.volley:volley:1.2.1")
 
 
 

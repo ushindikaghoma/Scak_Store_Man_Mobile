@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,10 +17,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 import com.scakstoreman.Menu.ContentMenuActivty;
+import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
+import com.scakstoreman.OfflineModels.Utilisateur.tUtilisateur;
 import com.scakstoreman.R;
+import com.scakstoreman.dbconnection.ConnexionAPI;
 import com.scakstoreman.dbconnection.DataFromAPI;
+import com.scakstoreman.dbconnection.DatabaseHandler;
 import com.scakstoreman.dbconnection.SqlDataHelper;
+import com.scakstoreman.serveur.me_URL;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +44,8 @@ public class LoginActivity extends AppCompatActivity {
     SqlDataHelper sqlDataHelper;
     String adresseIP, phone_number_user, password_user,
             fonction_user, service_affecte_user, compte_affecte_user, niveau_user,depot_affecte_user,
-            getPhoneUser, getPasswordUser, nom_user, reponse_connection, compte_depense, compte_stock_affecte;
+            getPhoneUser, getPasswordUser, nom_user, reponse_connection,
+            compte_depense, compte_stock_affecte, mode_type, pref_mode_type;
     AlertDialog dialogSettings = null;
     DataFromAPI dataFromAPI;
 
@@ -62,6 +72,11 @@ public class LoginActivity extends AppCompatActivity {
         preferences = getSharedPreferences("maPreference", MODE_PRIVATE);
         editor = preferences.edit();
 
+        pref_mode_type = preferences.getString("pref_mode_type","");
+        mode_type = getIntent().getStringExtra("mode_type");
+
+        Toast.makeText(LoginActivity.this, ""+mode_type, Toast.LENGTH_SHORT).show();
+
 
         connecter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,12 +89,24 @@ public class LoginActivity extends AppCompatActivity {
                     phone_edt.setError("Saisir le numéro de téléphone");
                     phone_edt.requestFocus();
                     return;
+                }else
+                {
+                    getPhoneUser = phone_edt.getText().toString();
+                    getPasswordUser = password_edt.getText().toString();
+//
+//
+                    if (pref_mode_type.equals("online"))
+                    {
+                        new AsynIsNumberExist(LoginActivity.this, getPhoneUser, getPasswordUser).execute();
+                    }else if(pref_mode_type.equals("offline"))
+                    {
+                        new connexionClass(phone_edt.getText().toString(),password_edt.getText().toString()).execute();
+                    }else
+                    {
+                        Toast.makeText(LoginActivity.this, "Mode inconnu"+pref_mode_type,Toast.LENGTH_SHORT).show();
+                    }
                 }
-                getPhoneUser = phone_edt.getText().toString();
-                getPasswordUser = password_edt.getText().toString();
-//
-//
-                new AsynIsNumberExist(LoginActivity.this, getPhoneUser, getPasswordUser).execute();
+
 
             }
         });
@@ -293,6 +320,112 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             return null;
+        }
+    }
+
+
+//    Cette place concerne la connexion avec sqlite
+
+    private class  connexionClass extends AsyncTask<String, Void,String>{
+        String username;
+        String password;
+
+        public connexionClass(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            alertDialog = new ProgressDialog(LoginActivity.this);
+
+            alertDialog.setCancelable(false);
+            alertDialog.setMessage("Connection en cours...");
+            alertDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            alertDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            alertDialog.dismiss();
+            if(s.contains("false")){
+                Toast.makeText(LoginActivity.this, "Nom d'utilisateur ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
+            }else{
+
+                //recuperation des information de l'utilisateur
+                //connexion reussie avec succes
+                try {
+                    //si l'insertion a réussie on update la collonne etat upate dans lse serveur
+//                    JSONObject jsonObjectj = new JSONObject(reponse);
+//                    JSONArray jsonArray = jsonObjectj.getJSONArray("data");
+                    //JSONArray jsonArray = new JSONArray(s);
+                    JSONObject jsonArray = new JSONObject(s);
+
+                    //Log.e("s",s);
+
+                    SQLiteDatabase db = DatabaseHandler.getInstance(LoginActivity.this).getWritableDatabase();
+                    db.beginTransaction();
+
+                    for(int i = 0; i < jsonArray.length(); i++) {
+                        //JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                        Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        tUtilisateur myObject = gson.fromJson(jsonArray.toString(), tUtilisateur.class);
+                        //verification de l'etat du phone
+
+                        //  Toast.makeText(context, ""+myObject.getNomUtilisateur(), Toast.LENGTH_SHORT).show();
+
+                        currentUsers.setCurrentUsers(LoginActivity.this,myObject);
+                        currentUsers.setConnexionTrue(LoginActivity.this);
+
+                        editor.putString("pref_nom_user",myObject.getNomUtilisateur());
+                        editor.putString("pref_foncion_user",myObject.getFonctionUt());
+                        editor.putString("pref_service_user",myObject.getServiceAffe());
+                        editor.putString("pref_compte_user",Integer.toString(myObject.getCompteCaisse()));
+                        editor.putString("pref_depot_user",myObject.getDepotAffe());
+                        editor.putString("pref_compte_stock_user", compte_stock_affecte);
+                        editor.putString("pref_compte_depense_user", Integer.toString(myObject.getCompteDepense()));
+
+                        editor.commit();
+                        editor.apply();
+
+
+                        Toast.makeText(LoginActivity.this, "Connexion réussie avec succès", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(LoginActivity.this,ContentMenuActivty.class));
+                    }
+
+                    db.setTransactionSuccessful();
+                    db.endTransaction();
+                    db.close();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    s = e.toString();
+                }
+
+                //recuperation des information de l'utilsateur
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            //verfication des l'existance d'un utilisateur
+            String responseReturn = "";
+            String reponse = ConnexionAPI.getDataFromServer(new me_URL(LoginActivity.this).IsUserExist(username,password));
+            //String reponse = new DataFromAPI(LoginActivity.this).IsUserExist(username,password);
+            if(reponse.contains("true")){
+                //recuperation des information de l'uitlisateur
+                String reponseUserData = ConnexionAPI.getDataFromServer(new me_URL(LoginActivity.this).GetLogin(username));
+                //String reponseUserData = new DataFromAPI(LoginActivity.this).GetLogin(username);
+                responseReturn =  reponseUserData;
+            }else{
+                responseReturn = reponse;
+            }
+
+            return responseReturn;
         }
     }
 }
