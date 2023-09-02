@@ -121,7 +121,7 @@ public class tOperation {
 
         String str = String.format("%03d",maxID);
 //        return "OP|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+"|"+ getTimesTamps.getimeStats()+"|"+maxID;
-        return currentUsers.getCurrentUsers(context).getDepotAffe()+
+        return currentUsers.getCurrentUsers(context).getDepotAffecter()+
                 "OP"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+""+""+str;
     }
 

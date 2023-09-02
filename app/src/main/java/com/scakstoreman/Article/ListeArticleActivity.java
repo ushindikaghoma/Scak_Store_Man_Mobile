@@ -9,10 +9,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.scakstoreman.Article.data.ArticleAdapter;
 import com.scakstoreman.Article.data.ArticleRepository;
 import com.scakstoreman.Article.data.ArticleResponse;
+import com.scakstoreman.OfflineModels.Article.tArticle;
+import com.scakstoreman.OfflineModels.Article.tArticleAdapter;
 import com.scakstoreman.R;
 
 import java.text.DecimalFormat;
@@ -29,11 +32,14 @@ public class ListeArticleActivity extends AppCompatActivity {
     RecyclerView listArticle;
     ArticleRepository articleRepository;
     ArticleAdapter articleAdapter;
+    tArticleAdapter tArticleAdapter;
 
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
     String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user, pref_mode_type,
             todayDate, prefix_operation;
+
+    List<tArticle> dataListe;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +70,17 @@ public class ListeArticleActivity extends AppCompatActivity {
             LoadListeArticle();
         }else if (pref_mode_type.equals("offline"))
         {
+            Toast.makeText(ListeArticleActivity.this,"Offline",Toast.LENGTH_SHORT).show();
             //liste article offline
+            dataListe = new ArrayList<>();
+            dataListe =  tArticle.getArticleAll(this,dataListe);
+            //dataListe =  tArticle.articlesSQLlite(this);
+            tArticleAdapter =  new tArticleAdapter(this,dataListe);
+            listArticle.setAdapter(tArticleAdapter);
+
+            progressBarLoadArticle.setVisibility(View.GONE);
+
+            tArticleAdapter.notifyDataSetChanged();
         }else
         {
 

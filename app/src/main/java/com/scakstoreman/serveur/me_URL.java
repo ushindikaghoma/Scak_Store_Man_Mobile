@@ -3,6 +3,8 @@ package com.scakstoreman.serveur;
 import android.content.Context;
 import android.util.Log;
 
+import java.security.PublicKey;
+
 public class me_URL {
 
    Context context;
@@ -45,11 +47,41 @@ public class me_URL {
       return  url+"/api/Utilisateur/GetSeConnecter?phone_number="+username;
    }
 
+    //++=STOCK +=========
     public String GetListeArticle()
     {
 
-        return url+"api/Stock/GetClientArticles";
+        return url+"/api/Stock/GetClientArticles";
     }
+
+    //++=STOCK +=========
+
+    //++=DEPOT +=========
+    public String GetPrixDepot(int numCompte, String codeArticle)
+    {
+        return url+"/api/Compte/GetPrixParDepot?numCompte="+numCompte+"&codeArticle="+codeArticle;
+    }
+    public String GetListeDepot()
+    {
+        return url+"/api/Depot/GetListeDepot";
+    }
+    public String GetCodeDepot(String designationDepot)
+    {
+        return url+"/api/Depot/GetCodeDepot?designationDepot="+designationDepot;
+    }
+
+    public String GetPrixDepotAll(int numCompte)
+    {
+        return url+"/api/Depot/GetPrixDepotAll?numCompte="+numCompte;
+    }
+
+    public String GetUserCompteStock(String codeDepot)
+    {
+        return url+"/api/Depot/GetCompteStockAffecte?codeDepot="+codeDepot;
+    }
+
+    //++=DEPOT +=========
+
 
    public String getService(){
       return  url+"/api/Sercice/getServiceAll";

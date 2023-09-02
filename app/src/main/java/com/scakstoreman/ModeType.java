@@ -76,7 +76,7 @@ public class ModeType extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                editorr.putString("pref_mode_type", "offline");
+                editorr.putString("pref_mode_type", "online");
                 editorr.apply();
                 editorr.commit();
 

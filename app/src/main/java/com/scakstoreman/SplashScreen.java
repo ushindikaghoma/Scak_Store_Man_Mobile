@@ -9,6 +9,9 @@ import android.os.Bundle;
 
 import com.scakstoreman.Login.LoginActivity;
 import com.scakstoreman.Menu.ContentMenuActivty;
+import com.scakstoreman.OfflineModels.Article.tArticle;
+import com.scakstoreman.OfflineModels.Depot.tDepot;
+import com.scakstoreman.OfflineModels.PrixClient.tPrix;
 import com.scakstoreman.OfflineModels.Utilisateur.tUtilisateur;
 import com.scakstoreman.dbconnection.DatabaseHandler;
 
@@ -31,6 +34,9 @@ public class SplashScreen extends AppCompatActivity {
 
         //creation des table de la base de donne
         tUtilisateur.createSqlTable(DatabaseHandler.getInstance(this).getWritableDatabase());
+        tArticle.createSqlTable(DatabaseHandler.getInstance(this).getWritableDatabase());
+        tPrix.createSqlTable(DatabaseHandler.getInstance(this).getWritableDatabase());
+        tDepot.createSqlTable(DatabaseHandler.getInstance(this).getWritableDatabase());
 
         Thread myThread = new Thread()
         {

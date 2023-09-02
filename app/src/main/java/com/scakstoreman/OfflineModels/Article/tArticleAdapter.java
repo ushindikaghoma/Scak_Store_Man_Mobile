@@ -1,4 +1,6 @@
-package com.scakstoreman.Article.data;
+package com.scakstoreman.OfflineModels.Article;
+
+
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -27,8 +29,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.scakstoreman.Achat.NouveauAchatActivity;
 import com.scakstoreman.Article.ListeArticleActivity;
+import com.scakstoreman.Article.data.ArticleResponse;
 import com.scakstoreman.Depot.data.DepotRepository;
 import com.scakstoreman.OfflineModels.Article.tArticle;
+import com.scakstoreman.OfflineModels.PrixClient.tPrix;
 import com.scakstoreman.Operation.OperationRepository;
 import com.scakstoreman.Operation.OperationResponse;
 import com.scakstoreman.Panier.data.PanierAttenteRepository;
@@ -40,31 +44,34 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Converter;
 import retrofit2.Response;
 
-public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleListAdapter>{
+public class tArticleAdapter extends RecyclerView.Adapter<tArticleAdapter.tArticleListAdapter>{
 
     Context context;
     private ArrayList<ArticleResponse> list;
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
     String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user,
-            todayDate, prefix_operation;
+            todayDate, prefix_operation, pref_mode_type;
     DepotRepository depotRepository;
     Calendar calendar;
     String isArticleInPanier;
     DataFromAPI dadataFromAPI;
 
+    List<tArticle> _list;
+    List<tArticle> listResult;
 
 
-    public ArticleAdapter(Context context) {
-        this.list = new ArrayList<>();
+
+    public tArticleAdapter(Context context, List<tArticle> list) {
+        this._list = list;
         this.context = context;
+        this.listResult = list;
 
         preferences = context.getSharedPreferences("maPreference", MODE_PRIVATE);
         editor = preferences.edit();
@@ -73,30 +80,24 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         todayDate = format.format(calendar.getTime());
 
-        depotRepository = DepotRepository.getInstance();
-        dadataFromAPI = new DataFromAPI(context);
-
         pref_code_depot = preferences.getString("pref_depot_user","");
         pref_compte_user = preferences.getString("pref_compte_user","");
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
-
-        //prefix_operation = nom_user.substring(0,2).toUpperCase()+pref_code_depot;
-
-
+        pref_mode_type = preferences.getString("pref_mode_type","");
     }
 
     @NonNull
     @Override
-    public ArticleListAdapter onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public tArticleListAdapter onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.model_articles, parent, false);
-        return new ArticleListAdapter(view);
+        return new tArticleListAdapter(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ArticleListAdapter holder, int position) {
-        ArticleResponse articleResponse = list.get(position);
-        holder.textView_designation_article.setText("" + articleResponse.getDesignationArticle());
+    public void onBindViewHolder(@NonNull tArticleListAdapter holder, int position) {
+        tArticle articleResponse = listResult.get(position);
+        holder.textView_designation_article.setText("" + articleResponse.getDesegnationArticle());
         holder.textView_prix_unitaire.setText("" + articleResponse.getPrixAchat());
 
 
@@ -116,12 +117,22 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
                 Button confirmer = myView.findViewById(R.id.dialog_add_quanite_confirmer_btn);
 
                 editTextNomProduit.setEnabled(false);
-                editTextNomProduit.setText(articleResponse.getDesignationArticle());
+                editTextNomProduit.setText(articleResponse.getDesegnationArticle());
 
 
 
-                LoadPrixDepot(Integer.valueOf(pref_compte_stock_user), articleResponse.getCodeArticle(),
-                        loadDialog, editTextPrixDepot);
+                if (pref_mode_type.equals("online"))
+                {
+                    LoadPrixDepot(Integer.valueOf(pref_compte_stock_user), articleResponse.getCodeArticle(),
+                            loadDialog, editTextPrixDepot);
+                }else if (pref_mode_type.equals("offline"))
+                {
+                    editTextPrixDepot.setText(""+tPrix.GetPrixDepot(context, pref_compte_stock_user,
+                            articleResponse.getCodeArticle()));
+                }else
+                {
+
+                }
 
 
                 final AlertDialog dialog = builder.create();
@@ -139,7 +150,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
                     public void onClick(View view) {
 
                         if (TextUtils.isEmpty(editTextQuantite.getText().toString().trim())
-                            || Double.parseDouble(editTextPrixDepot.getText().toString().trim()) == 0)
+                                || Double.parseDouble(editTextPrixDepot.getText().toString().trim()) == 0)
                         {
                             editTextQuantite.setError("Echec! verifiez vos champs de saisi!");
                             editTextQuantite.requestFocus();
@@ -152,7 +163,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
 
                             String codeArticle  = articleResponse.getCodeArticle();
                             String libelle  = "Achat en cash de"+" "+quantite+"KG"+" "+"de"+" "+
-                                    articleResponse.getDesignationArticle();
+                                    articleResponse.getDesegnationArticle();
 
                             new AsyncCreateOperation(libelle, loadDialog, codeArticle, total_entree,
                                     prix_depot, quantite, dialog, myView).execute();
@@ -168,10 +179,10 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return listResult.size();
     }
 
-    class ArticleListAdapter extends RecyclerView.ViewHolder
+    class tArticleListAdapter extends RecyclerView.ViewHolder
     {
         TextView textView_designation_article;
         TextView textView_prix_unitaire;
@@ -179,7 +190,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
         TextView textView_total;
         LinearLayout linearLayoutArticle;
 
-        public ArticleListAdapter(@NonNull View itemView) {
+        public tArticleListAdapter(@NonNull View itemView) {
             super(itemView);
 
 //            textView_designation_code = itemView.findViewById(R.id.modelArticleCode);
@@ -326,8 +337,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
 
     public class AsyncGetLatestOp extends AsyncTask<Void, Void, Void>
     {
-       String num_operation, codeArticle, libelle;
-       double totalMontant, prixRevien, quantite;
+        String num_operation, codeArticle, libelle;
+        double totalMontant, prixRevien, quantite;
         AlertDialog dialog;
         View view;
 
@@ -538,9 +549,10 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleL
         });
     }
 
-    public void setList(List<ArticleResponse> list)
+    public void setList(List<tArticle> list)
     {
-        this.list.clear();
-        this.list.addAll(list);
+        this.listResult.clear();
+        this.listResult.addAll(list);
     }
 }
+

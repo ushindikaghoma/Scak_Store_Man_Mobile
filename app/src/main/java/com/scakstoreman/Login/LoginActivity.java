@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.scakstoreman.Menu.ContentMenuActivty;
 import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
 import com.scakstoreman.OfflineModels.Utilisateur.tUtilisateur;
@@ -28,6 +30,7 @@ import com.scakstoreman.dbconnection.ConnexionAPI;
 import com.scakstoreman.dbconnection.DataFromAPI;
 import com.scakstoreman.dbconnection.DatabaseHandler;
 import com.scakstoreman.dbconnection.SqlDataHelper;
+import com.scakstoreman.serveur.DonneesFromMySQL;
 import com.scakstoreman.serveur.me_URL;
 
 import org.json.JSONArray;
@@ -101,6 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                     }else if(pref_mode_type.equals("offline"))
                     {
                         new connexionClass(phone_edt.getText().toString(),password_edt.getText().toString()).execute();
+                        Toast.makeText(LoginActivity.this, ""+dataFromAPI.GetComptStockAffecte("DP1"), Toast.LENGTH_SHORT).show();
                     }else
                     {
                         Toast.makeText(LoginActivity.this, "Mode inconnu"+pref_mode_type,Toast.LENGTH_SHORT).show();
@@ -228,25 +232,25 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
 
-            JSONObject jsonArray;
+            JSONArray jsonArray;
 
             try
             {
-                jsonArray = new JSONObject(dataFromAPI.GetLogin(phone_number));
+                jsonArray = new JSONArray(dataFromAPI.GetLogin(phone_number));
 
                 for (int i =0; i<jsonArray.length(); i++)
                 {
-                    //JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
 
 //                    phone_number_user = jsonObject.optString("numPhone");
-                    nom_user = jsonArray.optString("NomUtilisateur");
-                    password_user = jsonArray.optString("MotPasseUtilisateur");
-                    fonction_user = jsonArray.optString("FonctionUt");
-                    niveau_user = jsonArray.optString("NiveauUtilisateur");
-                    service_affecte_user = jsonArray.optString("ServiceAffe");
-                    compte_affecte_user = jsonArray.optString("Compte");
-                    depot_affecte_user = jsonArray.optString("DepotAffecter");
-                    compte_depense = jsonArray.optString("CaisseDepense");
+                    nom_user = jsonObject.optString("NomUtilisateur");
+                    password_user = jsonObject.optString("MotPasseUtilisateur");
+                    fonction_user = jsonObject.optString("FonctionUt");
+                    niveau_user = jsonObject.optString("NiveauUtilisateur");
+                    service_affecte_user = jsonObject.optString("ServiceAffe");
+                    compte_affecte_user = jsonObject.optString("Compte");
+                    depot_affecte_user = jsonObject.optString("DepotAffecter");
+                    compte_depense = jsonObject.optString("CaisseDepense");
                 }
 
             } catch (JSONException e)
@@ -329,6 +333,7 @@ public class LoginActivity extends AppCompatActivity {
     private class  connexionClass extends AsyncTask<String, Void,String>{
         String username;
         String password;
+        String codeDepot;
 
         public connexionClass(String username, String password) {
             this.username = username;
@@ -361,8 +366,8 @@ public class LoginActivity extends AppCompatActivity {
                     //si l'insertion a réussie on update la collonne etat upate dans lse serveur
 //                    JSONObject jsonObjectj = new JSONObject(reponse);
 //                    JSONArray jsonArray = jsonObjectj.getJSONArray("data");
-                    //JSONArray jsonArray = new JSONArray(s);
-                    JSONObject jsonArray = new JSONObject(s);
+                    JSONArray jsonArray = new JSONArray(s);
+                    //JSONObject jsonArray = new JSONObject(s);
 
                     //Log.e("s",s);
 
@@ -370,33 +375,40 @@ public class LoginActivity extends AppCompatActivity {
                     db.beginTransaction();
 
                     for(int i = 0; i < jsonArray.length(); i++) {
-                        //JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                        JSONObject jsonObject1 = jsonArray.getJSONObject(i);
                         Gson gson = new Gson(); // Or use new GsonBuilder().create();
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        tUtilisateur myObject = gson.fromJson(jsonArray.toString(), tUtilisateur.class);
+                        tUtilisateur myObject = gson.fromJson(jsonObject1.toString(), tUtilisateur.class);
+                        //tUtilisateur myObject = gson.fromJson(jsonArray.toString(), tUtilisateur.class);
                         //verification de l'etat du phone
+
+                        Log.e("User object",""+dataFromAPI.GetComptStockAffecte(myObject.getDepotAffecter()));
 
                         //  Toast.makeText(context, ""+myObject.getNomUtilisateur(), Toast.LENGTH_SHORT).show();
 
                         currentUsers.setCurrentUsers(LoginActivity.this,myObject);
                         currentUsers.setConnexionTrue(LoginActivity.this);
 
+                        codeDepot = myObject.getDepotAffecter();
+
                         editor.putString("pref_nom_user",myObject.getNomUtilisateur());
                         editor.putString("pref_foncion_user",myObject.getFonctionUt());
                         editor.putString("pref_service_user",myObject.getServiceAffe());
-                        editor.putString("pref_compte_user",Integer.toString(myObject.getCompteCaisse()));
-                        editor.putString("pref_depot_user",myObject.getDepotAffe());
+                        editor.putString("pref_compte_user",Integer.toString(myObject.getCompte()));
+                        editor.putString("pref_depot_user",myObject.getDepotAffecter());
                         editor.putString("pref_compte_stock_user", compte_stock_affecte);
-                        editor.putString("pref_compte_depense_user", Integer.toString(myObject.getCompteDepense()));
+                        editor.putString("pref_compte_depense_user", Integer.toString(myObject.getCaisseDepense()));
 
                         editor.commit();
                         editor.apply();
 
 
-                        Toast.makeText(LoginActivity.this, "Connexion réussie avec succès", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this,ContentMenuActivty.class));
+                        Toast.makeText(LoginActivity.this, ""+compte_stock_affecte, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(LoginActivity.this, ""+myObject.getDepotAffecter(), Toast.LENGTH_SHORT).show();
                     }
 
+                    Toast.makeText(LoginActivity.this, "Connexion réussie avec succès", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(LoginActivity.this,ContentMenuActivty.class));
+                    finish();
                     db.setTransactionSuccessful();
                     db.endTransaction();
                     db.close();
@@ -420,6 +432,7 @@ public class LoginActivity extends AppCompatActivity {
                 //recuperation des information de l'uitlisateur
                 String reponseUserData = ConnexionAPI.getDataFromServer(new me_URL(LoginActivity.this).GetLogin(username));
                 //String reponseUserData = new DataFromAPI(LoginActivity.this).GetLogin(username);
+                compte_stock_affecte = ConnexionAPI.getDataFromServer(new me_URL(LoginActivity.this).GetUserCompteStock(codeDepot));
                 responseReturn =  reponseUserData;
             }else{
                 responseReturn = reponse;

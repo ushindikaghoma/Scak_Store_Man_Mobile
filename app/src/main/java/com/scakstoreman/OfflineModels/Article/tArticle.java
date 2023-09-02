@@ -1,5 +1,6 @@
 package com.scakstoreman.OfflineModels.Article;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,6 +10,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.scakstoreman.Article.data.ArticleConnexion;
+import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
 import com.scakstoreman.Stock.data.StockConnexion;
 import com.scakstoreman.dbconnection.DatabaseHandler;
 import com.scakstoreman.serveur.DonneesFromMySQL;
@@ -27,14 +29,51 @@ public class tArticle {
     public static  String TABLE_NAME = "tStock";
     public static  String PRIMARY_KEY = "CodeArticle";
 
-    int CategorieArticle, IdArticle, Critique, Compte, indicateur;
-    String CodeArticle, DesignationArticle, CreeerPar, CodeDepartement,
-            DateCreation, UniteEngro, UiniteEnDetaille, BarCode;
-     double PrixAchat, PrixVente, QteEnDet, Enstock, Solde;
+
+
     private int etatUpload;
+    @SerializedName("CategorieArticle")
+    private int CategorieArticle;
+    @SerializedName("CodeArticle")
+    private String CodeArticle;
+    @SerializedName("DesegnationArticle")
+    private String DesegnationArticle;
+    @SerializedName("PrixAchat")
+    private double PrixAchat;
+    @SerializedName("PrixVente")
+    private double PrixVente;
+    @SerializedName("IdArticle")
+    private int IdArticle;
+    @SerializedName("Critique")
+    private int Critique;
+    @SerializedName("CreeerPar")
+    private String CreeerPar;
+    @SerializedName("CodeDepartement")
+    private String CodeDepartement;
+    @SerializedName("DateCreation")
+    private String DateCreation;
+    @SerializedName("Compte")
+    private int Compte;
+    @SerializedName("UniteEngro")
+    private String UniteEngro;
+    @SerializedName("UiniteEnDetaille")
+    private String UiniteEnDetaille;
+    @SerializedName("QteEnDet")
+    private double  QteEnDet;
+    @SerializedName("Enstock")
+    private double Enstock;
+    @SerializedName("Solde")
+    private double Solde;
+    @SerializedName("indicateur")
+    private int indicateur;
+    @SerializedName("BarCode")
+    private String   BarCode;
+
+
+
 
     public tArticle(int categorieArticle, int idArticle, int critique, int compte,
-                    int indicateur, String codeArticle, String designationArticle,
+                    int indicateur, String codeArticle, String desegnationArticle,
                     String creeerPar, String codeDepartement, String dateCreation,
                     String uniteEngro, String uiniteEnDetaille, String barCode,
                     double prixAchat, double prixVente, double qteEnDet,
@@ -45,7 +84,7 @@ public class tArticle {
         this.Compte = compte;
         this.indicateur = indicateur;
         this.CodeArticle = codeArticle;
-        this.DesignationArticle = designationArticle;
+        this.DesegnationArticle = desegnationArticle;
         this.CreeerPar = creeerPar;
         this.CodeDepartement = codeDepartement;
         this.DateCreation = dateCreation;
@@ -59,9 +98,9 @@ public class tArticle {
         this.Solde = solde;
     }
 
-    public tArticle(String codeArticle, String designationArticle, double prixAchat) {
+    public tArticle(String codeArticle, String desegnationArticle, double prixAchat) {
         CodeArticle = codeArticle;
-        DesignationArticle = designationArticle;
+        DesegnationArticle = desegnationArticle;
         PrixAchat = prixAchat;
     }
 
@@ -89,8 +128,8 @@ public class tArticle {
         return CodeArticle;
     }
 
-    public String getDesignationArticle() {
-        return DesignationArticle;
+    public String getDesegnationArticle() {
+        return DesegnationArticle;
     }
 
     public String getCreeerPar() {
@@ -141,24 +180,24 @@ public class tArticle {
     public static void createSqlTable(SQLiteDatabase db){
         //creation de la table dans SQL LITE
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (\n" +
-                "  `IdArticle` INTEGER PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
+                "  `CategorieArticle` INTEGER ,\n" +
                 "  `CodeArticle` varchar(60)  UNIQUE,\n" +
-                "  `DesegnationArticle` varchar(90)  ,\n" +
-                "  `CategorieArticle` interger default(null),\n" +
-                "  `Critique` integer default(null),\n" +
-                "  `Compte` integer default(null),\n" +
-                "  `Indicateur` integer default(null),\n" +
-                "  `CreerPar` varchar(50) default(null),\n" +
-                "  `CodeDepartement` datetime default(null),\n" +
-                "  `DateCreation` varchar(60) default(null),\n" +
-                "  `UniteEngro` varchar(40) default(null),\n" +
-                "  `UiniteEnDetaille` varchar(40) default(null),\n" +
-                "  `BarCode` varchar(40) default(null),\n" +
+                "  `DesegnationArticle` varchar(255),\n" +
                 "  `PrixAchat` double default(0),\n" +
                 "  `PrixVente` double default(0),\n" +
+                "  `IdArticle` integer PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
+                "  `Critique` integer default(null),\n" +
+                "  `CreeerPar` varchar(50) default(null),\n" +
+                "  `CodeDepartement` varchar(50) default(null),\n" +
+                "  `DateCreation` datetime default(null),\n" +
+                "  `Compte` interger default(null),\n" +
+                "  `UniteEngro` varchar(40) default(null),\n" +
+                "  `UiniteEnDetaille` varchar(40) default(null),\n" +
                 "  `QteEnDet` double default(0),\n" +
-                "  `EnStock` double default(0),\n" +
-                "  `Solde` double default(0)\n" +
+                "  `Enstock` double default(0),\n" +
+                "  `Solde` double default(0),\n" +
+                "  `indicateur` integer default(0),\n" +
+                "  `BarCode` varchar(50) default(null)\n" +
                 ")");
     }
 
@@ -171,7 +210,7 @@ public class tArticle {
             Log.e("Articles","false");
             DatabaseHandler.getInstance(context).updateTABLEall(TABLE_NAME +
                             "",
-                    PRIMARY_KEY,myObject.getIdArticle()+"",contentValues);
+                    PRIMARY_KEY,myObject.getCodeArticle()+"",contentValues);
             return false;
         }else {
             //db.close();
@@ -196,7 +235,30 @@ public class tArticle {
         return dataList;
     }
 
+    public static List<tArticle> getArticleAll(Context context, List<tArticle> dataList) {
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+        Cursor cursor = DatabaseHandler.all(db,TABLE_NAME);
 
+        try {
+            //convert curso to json
+            JSONArray jsonArray = DatabaseHandler.cur2Json(cursor);
+            dataList.clear();
+            for(int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                tArticle myObject = gson.fromJson(jsonObject1.toString(), tArticle.class);
+
+                dataList.add(myObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        cursor.close();
+        db.close();
+        return dataList;
+    }
 
     public static List<tArticle> getDataFromServer(Context context) {
 
@@ -220,7 +282,7 @@ public class tArticle {
                 SQLinsertCreate(db,context,myObject);
                 //dataList.add(myObject);
 
-                Log.e("eruur "+i,myObject.getDesignationArticle());
+                Log.e("eruur "+i,myObject.getDesegnationArticle());
             }
 
             db.setTransactionSuccessful();

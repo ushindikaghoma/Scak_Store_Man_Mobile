@@ -21,64 +21,66 @@ public class tUtilisateur {
     public static  String TABLE_NAME = "tUtilisateur";
     public static  String PRIMARY_KEY = "IdUtilisareur";
 
-    private int idUtilisareur;
-    private String nomUtilisateur,motPasseUtilisateur,niveauUtilisateur,fonctionUt,serviceAffe,depotAffe, designationUt;
-    private  int compteCaisse, compteDepense;
+    private int IdUtilisareur;
+    private String NomUtilisateur,MotPasseUtilisateur,NiveauUtilisateur,
+            FonctionUt,ServiceAffe,DepotAffecter, DesignationUt;
+    private  int Compte, CaisseDepense;
 
     public tUtilisateur(int idUtilisareur, String nomUtilisateur,
                         String motPasseUtilisateur, String niveauUtilisateur,
-                        String fonctionUt, String serviceAffe, String depotAffe,
-                        String designationUt, int compteCaisse, int compteDepense) {
-        this.idUtilisareur = idUtilisareur;
-        this.nomUtilisateur = nomUtilisateur;
-        this.motPasseUtilisateur = motPasseUtilisateur;
-        this.niveauUtilisateur = niveauUtilisateur;
-        this.fonctionUt = fonctionUt;
-        this.serviceAffe = serviceAffe;
-        this.depotAffe = depotAffe;
-        this.designationUt = designationUt;
-        this.compteCaisse = compteCaisse;
-        this.compteDepense = compteDepense;
+                        String fonctionUt, String serviceAffe,
+                        String depotAffecter, String designationUt,
+                        int compte, int caisseDepense) {
+        IdUtilisareur = idUtilisareur;
+        NomUtilisateur = nomUtilisateur;
+        MotPasseUtilisateur = motPasseUtilisateur;
+        NiveauUtilisateur = niveauUtilisateur;
+        FonctionUt = fonctionUt;
+        ServiceAffe = serviceAffe;
+        DepotAffecter = depotAffecter;
+        DesignationUt = designationUt;
+        Compte = compte;
+        CaisseDepense = caisseDepense;
     }
 
     public int getIdUtilisareur() {
-        return idUtilisareur;
+        return IdUtilisareur;
     }
 
     public String getNomUtilisateur() {
-        return nomUtilisateur;
+        return NomUtilisateur;
     }
 
     public String getMotPasseUtilisateur() {
-        return motPasseUtilisateur;
+        return MotPasseUtilisateur;
     }
 
     public String getNiveauUtilisateur() {
-        return niveauUtilisateur;
+        return NiveauUtilisateur;
     }
 
     public String getFonctionUt() {
-        return fonctionUt;
+        return FonctionUt;
     }
 
     public String getServiceAffe() {
-        return serviceAffe;
+        return ServiceAffe;
     }
 
-    public String getDepotAffe() {
-        return depotAffe;
+    public String getDepotAffecter() {
+        return DepotAffecter;
     }
 
     public String getDesignationUt() {
-        return designationUt;
+        return DesignationUt;
     }
 
-    public int getCompteCaisse() {
-        return compteCaisse;
+    public int getCompte() {
+        return Compte;
     }
 
-    public int getCompteDepense() {
-        return compteDepense;
+    public int getCaisseDepense() {
+        return CaisseDepense;
     }
 
     public static void createSqlTable(SQLiteDatabase db){

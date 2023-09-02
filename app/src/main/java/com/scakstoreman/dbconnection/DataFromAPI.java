@@ -31,7 +31,7 @@ public class DataFromAPI extends ConnexionAPI{
             server = ipServeur.toString();
         }
 
-        server = "192.168.1.27/TouchBistroIshango";
+        server = "192.168.1.33/TouchBistroIshango";
 
         postClient = "http://"+server+"/api/Clients/Create";
         //URL = server;
@@ -845,9 +845,10 @@ public class DataFromAPI extends ConnexionAPI{
         {
             url = "http://"+server+"/api/Depot/GetCompteStockAffecte?codeDepot="+codeDepot;
             response = call(url);
+            Log.e("UUshher", response);
         }catch (Exception e)
         {
-
+            Log.e("UUshher", response);
         }
         return response;
     }

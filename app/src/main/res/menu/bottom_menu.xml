@@ -21,4 +21,5 @@
         android:id="@+id/bot_nav_depense"
         android:title="Dépenses"
         android:icon="@drawable/baseline_addchart_24"/>
+
 </menu>

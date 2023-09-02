@@ -37,6 +37,8 @@
         <activity
             android:name=".Login.LoginActivity"
             android:exported="false" />
+        <activity android:name=".Menu.SyncUploadActivity"
+            android:exported="false"/>
         <activity
             android:name=".SplashScreen"
             android:exported="true">
