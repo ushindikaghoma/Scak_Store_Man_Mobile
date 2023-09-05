@@ -53,6 +53,10 @@ public class me_URL {
 
         return url+"/api/Stock/GetClientArticles";
     }
+    public String GetMvtStockAll()
+    {
+        return url+"/api/Stock/GetMvtStockAll";
+    }
 
     //++=STOCK +=========
 
@@ -81,6 +85,22 @@ public class me_URL {
     }
 
     //++=DEPOT +=========
+
+    //+++COMPTE+++=======
+    public String GetFournisseur()
+    {
+        return url +"/api/Compte/GetListeFournisseur";
+    }
+    public String GetListeCompteAll()
+    {
+        return url +"/api/Compte/GetListeCompteAll";
+    }
+    public String GetMvtCompteAll()
+    {
+        return url+"/api/Comptabilite/GetMvtCompteAll";
+    }
+    //+++COMPTE+++=======
+
 
 
    public String getService(){

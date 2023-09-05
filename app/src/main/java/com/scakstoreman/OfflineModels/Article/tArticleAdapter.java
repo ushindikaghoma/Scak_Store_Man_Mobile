@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
@@ -32,13 +33,17 @@ import com.scakstoreman.Article.ListeArticleActivity;
 import com.scakstoreman.Article.data.ArticleResponse;
 import com.scakstoreman.Depot.data.DepotRepository;
 import com.scakstoreman.OfflineModels.Article.tArticle;
+import com.scakstoreman.OfflineModels.Operation.tOperation;
+import com.scakstoreman.OfflineModels.Panier.tPanier;
 import com.scakstoreman.OfflineModels.PrixClient.tPrix;
+import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
 import com.scakstoreman.Operation.OperationRepository;
 import com.scakstoreman.Operation.OperationResponse;
 import com.scakstoreman.Panier.data.PanierAttenteRepository;
 import com.scakstoreman.Panier.data.PanierAttenteResponse;
 import com.scakstoreman.R;
 import com.scakstoreman.dbconnection.DataFromAPI;
+import com.scakstoreman.dbconnection.DatabaseHandler;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,6 +71,8 @@ public class tArticleAdapter extends RecyclerView.Adapter<tArticleAdapter.tArtic
     List<tArticle> _list;
     List<tArticle> listResult;
 
+    String codeOperation;
+
 
 
     public tArticleAdapter(Context context, List<tArticle> list) {
@@ -85,6 +92,8 @@ public class tArticleAdapter extends RecyclerView.Adapter<tArticleAdapter.tArtic
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
         pref_mode_type = preferences.getString("pref_mode_type","");
+
+        codeOperation = tOperation.getMaxId(context);
     }
 
     @NonNull
@@ -127,6 +136,8 @@ public class tArticleAdapter extends RecyclerView.Adapter<tArticleAdapter.tArtic
                             loadDialog, editTextPrixDepot);
                 }else if (pref_mode_type.equals("offline"))
                 {
+                    editTextPrixDepot.setEnabled(false);
+                    loadDialog.setVisibility(View.GONE);
                     editTextPrixDepot.setText(""+tPrix.GetPrixDepot(context, pref_compte_stock_user,
                             articleResponse.getCodeArticle()));
                 }else
@@ -165,8 +176,47 @@ public class tArticleAdapter extends RecyclerView.Adapter<tArticleAdapter.tArtic
                             String libelle  = "Achat en cash de"+" "+quantite+"KG"+" "+"de"+" "+
                                     articleResponse.getDesegnationArticle();
 
-                            new AsyncCreateOperation(libelle, loadDialog, codeArticle, total_entree,
-                                    prix_depot, quantite, dialog, myView).execute();
+                            if (pref_mode_type.equals("online"))
+                            {
+                                new AsyncCreateOperation(libelle, loadDialog, codeArticle, total_entree,
+                                        prix_depot, quantite, dialog, myView).execute();
+                            }else if (pref_mode_type.equals("offline"))
+                            {
+
+                                tOperation operationObject =  new tOperation(codeOperation,"",libelle,
+                                        todayDate,currentUsers.getCurrentUsers(context).getNomUtilisateur()+"",
+                                        todayDate, "",0,0,0,0);
+
+                                tPanier panierObject = new tPanier(codeArticle,"",pref_code_depot,codeOperation,
+                                        "","","","",tPanier.getMaxId(context),prix_depot,
+                                        0,quantite,0,0,0,0,0,total_entree,
+                                        total_entree,quantite,0,0,0,0,0);
+
+
+
+                                SQLiteDatabase db =  DatabaseHandler.getInstance(context).getWritableDatabase();
+                                db.beginTransaction();
+                                if(tOperation.SQLinsertCreate(db,context,operationObject)){
+                                    //enregistrement du mouvement stock
+                                    tPanier.SQLinsertCreate(db,context,panierObject);
+
+                                    view.getContext().startActivity(new Intent(context, NouveauAchatActivity.class)
+                                            .putExtra("num_operation", codeOperation)
+                                            .putExtra("libelle", libelle)
+                                            .putExtra("montant_entree", panierObject.getEntree()));
+//
+
+                                    dialog.dismiss();
+                                    ((Activity)view.getContext()).finish();
+
+                                }
+
+                                db.setTransactionSuccessful();
+                                db.endTransaction();
+                                db.close();
+
+                            }else
+                            {}
                         }
 
 

@@ -18,4 +18,7 @@ public interface DepotConnexion {
     @GET("api/Compte/GetPrixParDepot")
     Call<Double> getPrixDepot(@Query("numCompte") int numeroCompte,
                               @Query("codeArticle") String codeArticle);
+
+    @GET("api/Depot/GetCompteStockAffecte")
+    Call<String> getCompteDepot(@Query("codeDepot") String codeDepot);
 }

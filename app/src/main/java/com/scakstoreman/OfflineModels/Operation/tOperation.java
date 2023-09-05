@@ -17,20 +17,20 @@ public class tOperation {
     public static  String TABLE_NAME = "tOperation";
     public static  String PRIMARY_KEY = "NumOperation";
     private String numOperation, codeClient,
-            libelle, dateOperation, nomUtilisateur,
+            libelle, dateOp, nomUt,
             dateSysteme, codeEtatdeBesoin;
     private int id, idTypeOperation, valider, etatUpLoad;
     private double montant, qteEntree;
 
     public tOperation(String numOperation, String codeClient, String libelle,
-                      String dateOperation, String nomUtilisateur,
+                      String dateOp, String nomUt,
                       String dateSysteme, String codeEtatdeBesoin,
                       int id, int idTypeOperation, int valider, int etatUpLoad) {
         this.numOperation = numOperation;
         this.codeClient = codeClient;
         this.libelle = libelle;
-        this.dateOperation = dateOperation;
-        this.nomUtilisateur = nomUtilisateur;
+        this.dateOp = dateOp;
+        this.nomUt= nomUt;
         this.dateSysteme = dateSysteme;
         this.codeEtatdeBesoin = codeEtatdeBesoin;
         this.id = id;
@@ -51,12 +51,12 @@ public class tOperation {
         return libelle;
     }
 
-    public String getDateOperation() {
-        return dateOperation;
+    public String getDateOp() {
+        return dateOp;
     }
 
-    public String getNomUtilisateur() {
-        return nomUtilisateur;
+    public String getNomUt() {
+        return nomUt;
     }
 
     public String getDateSysteme() {
@@ -83,13 +83,13 @@ public class tOperation {
         return etatUpLoad;
     }
 
-    public double getMontant() {
-        return montant;
-    }
+//    public double getMontant() {
+//        return montant;
+//    }
 
-    public double getQteEntree() {
-        return qteEntree;
-    }
+//    public double getQteEntree() {
+//        return qteEntree;
+//    }
 
     public static void createSqlTable(SQLiteDatabase db){
         //creation de la table dans SQL LITE
@@ -111,7 +111,7 @@ public class tOperation {
     }
 
 
-    public static String getMaxId(Activity context){
+    public static String getMaxId(Context context){
         Cursor cursor = DatabaseHandler.getInstance(context).getWritableDatabase().rawQuery("SELECT max(id) AS maxID FROM "+TABLE_NAME,null);
         int maxID = 1;
         if(cursor.moveToNext()){

@@ -34,6 +34,12 @@ import com.scakstoreman.Compte.data.CompteRepository;
 import com.scakstoreman.Compte.data.CompteResponse;
 import com.scakstoreman.Fournisseur.AdapterFournisseur;
 import com.scakstoreman.Fournisseur.FournisseurAdapter;
+import com.scakstoreman.OfflineModels.Article.tArticle;
+import com.scakstoreman.OfflineModels.Article.tArticleAdapter;
+import com.scakstoreman.OfflineModels.Fournisseur.*;
+import com.scakstoreman.OfflineModels.Panier.PayModel;
+import com.scakstoreman.OfflineModels.Panier.tPanier;
+import com.scakstoreman.OfflineModels.Panier.tPanierAdapter;
 import com.scakstoreman.Operation.OperationRepository;
 import com.scakstoreman.Panier.data.AdapterPanier;
 import com.scakstoreman.Panier.data.PanierAttenteRepository;
@@ -79,10 +85,19 @@ public class NouveauAchatActivity extends AppCompatActivity {
     DataFromAPI dataFromAPI;
     ProgressDialog alertDialog;
 
+    List<PayModel> dataListe;
+    List<tFournisseur> dataliste_fournisseur;
+    tFournisseurAdapter _tFournisseurAdapter;
+    tPanierAdapter _tPanierAdapter;
+    tPanier panier_extra;
+    double montant_entree_extra;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nouveau_achat);
+
+        this.getSupportActionBar().setTitle("Nouvel achat");
 
         rechercheFournisseurBtn = findViewById(R.id.nouveau_achat_search_fournisseur);
         ajouterAuPanierBtn = findViewById(R.id.nouveau_achat_addchart_btn);
@@ -112,6 +127,11 @@ public class NouveauAchatActivity extends AppCompatActivity {
 
         num_operation = getIntent().getStringExtra("num_operation");
         libelle = getIntent().getStringExtra("libelle");
+        montant_entree_extra = getIntent().getDoubleExtra("montant_entree",0);
+//
+//        if(getIntent().getExtras() != null) {
+//            panier_extra = (tPanier) getIntent().getSerializableExtra("panier");
+//        }
 
 //        extras = getIntent().getExtras();
 //        if (extras != null) {
@@ -137,6 +157,33 @@ public class NouveauAchatActivity extends AppCompatActivity {
         {
             // load liste panier sqlite
             Toast.makeText(NouveauAchatActivity.this, "Pas dispo"+pref_mode_type, Toast.LENGTH_SHORT).show();
+            //liste mvtStock offline
+            if (num_operation == null)
+            {
+                num_operation = "0";
+
+                dataListe = new ArrayList<>();
+                dataListe =  tPanier.GetLoadPanier(this,dataListe, num_operation);
+                _tPanierAdapter =  new tPanierAdapter(this,dataListe);
+                recyclerViewPanier.setAdapter(_tPanierAdapter);
+
+                progressBarLoadPanier.setVisibility(View.GONE);
+
+                _tPanierAdapter.notifyDataSetChanged();
+                textViewDisplayTotal.setText(""+ new DecimalFormat("##.##").format(montant_entree_extra));
+            }else
+            {
+                dataListe = new ArrayList<>();
+                dataListe =  tPanier.GetLoadPanier(this,dataListe, num_operation);
+                _tPanierAdapter =  new tPanierAdapter(this,dataListe);
+                recyclerViewPanier.setAdapter(_tPanierAdapter);
+
+                progressBarLoadPanier.setVisibility(View.GONE);
+
+                _tPanierAdapter.notifyDataSetChanged();
+
+                textViewDisplayTotal.setText(""+ new DecimalFormat("##.##").format(montant_entree_extra));
+            }
         }else
         {
 
@@ -163,6 +210,17 @@ public class NouveauAchatActivity extends AppCompatActivity {
                 }else if (pref_mode_type.equals("offline"))
                 {
                     // liste fournisseur offline
+
+                    dataliste_fournisseur = new ArrayList<>();
+                    dataliste_fournisseur =  tFournisseur.GetListeFournisseur(NouveauAchatActivity.this,dataliste_fournisseur);
+                    _tFournisseurAdapter =  new tFournisseurAdapter(NouveauAchatActivity.this);
+
+                    _tFournisseurAdapter.setList(dataliste_fournisseur);
+                    recyclerViewFournisseur.setAdapter(_tFournisseurAdapter);
+
+                    loadFournisseur.setVisibility(View.GONE);
+
+                    _tFournisseurAdapter.notifyDataSetChanged();
                 }else
                 {
 
@@ -184,8 +242,16 @@ public class NouveauAchatActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                        diplay_designation_compte.setText(list_local_fournisseur.get(i).getDesignationCompte());
-                        display_num_compte.setText(""+list_local_fournisseur.get(i).getNumCompte());
+                        if (pref_mode_type.equals("online"))
+                        {
+                            diplay_designation_compte.setText(list_local_fournisseur.get(i).getDesignationCompte());
+                            display_num_compte.setText(""+list_local_fournisseur.get(i).getNumCompte());
+                        } else if (pref_mode_type.equals("offline"))
+                        {
+                            diplay_designation_compte.setText(dataliste_fournisseur.get(i).getDesignationCompte());
+                            display_num_compte.setText(""+dataliste_fournisseur.get(i).getNumCompte());
+                        }
+
 
                         dialog.dismiss();
                     }

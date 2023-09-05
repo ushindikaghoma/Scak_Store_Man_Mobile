@@ -26,7 +26,7 @@ public class tCompte {
     public static  String TABLE_NAME = "tCompte";
     public static  String PRIMARY_KEY = "NumCompte";
 
-    private int IdCompte;
+    private int Id;
     @SerializedName("NumCompte")
     private int NumCompte;
     @SerializedName("Matricule")
@@ -64,13 +64,13 @@ public class tCompte {
     @SerializedName("CodeClient")
     private String CodeClient;
 
-    public tCompte(int idCompte, int numCompte, int matricule, int groupeCompte,
+    public tCompte(int id, int numCompte, int matricule, int groupeCompte,
                    String designationCompte, int typeSous, int unite,
                    String creerPar, double solde, double soldeUsd,
                    double stock, double pu, int ordre, int activer,
                    String variation, double pourcentPv,
                    int iindicateurCompte, int smsType, String codeClient) {
-        IdCompte = idCompte;
+        Id = id;
         NumCompte = numCompte;
         Matricule = matricule;
         GroupeCompte = groupeCompte;
@@ -91,8 +91,8 @@ public class tCompte {
         CodeClient = codeClient;
     }
 
-    public int getIdCompte() {
-        return IdCompte;
+    public int getId() {
+        return Id;
     }
 
     public int getNumCompte() {
@@ -170,7 +170,7 @@ public class tCompte {
     public static void createSqlTable(SQLiteDatabase db){
         //creation de la table dans SQL LITE
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (\n" +
-                "  `IdCompte` INTEGER PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
+                "  `Id` INTEGER PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
                 "  `NumCompte` integer UNIQUE,\n" +
                 "  `Matricule` integer default(0),\n" +
                 "  `GroupeCompte` integer default(0),\n" +
@@ -209,39 +209,39 @@ public class tCompte {
         }
     }
 
-//    public static List<tCompte> getDataFromServer(Context context) {
-//
-//        List<tCompte>dataList =  new ArrayList<>();
-//        try {
-//            String reponse = DonneesFromMySQL.getDataFromServer(new me_URL(context).GetListeArticle());
-//
-//            //si l'insertion a réussie on update la collonne etat upate dans lse serveur
-////            JSONObject jsonObjectj = new JSONObject(reponse);
-////            JSONArray jsonArray = jsonObjectj.getJSONArray("data");
-//            JSONArray jsonArray = new JSONArray(reponse);
-//
-//            SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
-//            db.beginTransaction();
-//
-//            for(int i = 0; i < jsonArray.length(); i++) {
-//                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
-//                Gson gson = new Gson(); // Or use new GsonBuilder().create();
-//                tArticle myObject = gson.fromJson(jsonObject1.toString(), tArticle.class);
-//                //insertion de l'utiilisateur dans la base de donnees
-//                SQLinsertCreate(db,context,myObject);
-//                //dataList.add(myObject);
-//
-//                Log.e("eruur "+i,myObject.getDesegnationArticle());
-//            }
-//
-//            db.setTransactionSuccessful();
-//            db.endTransaction();
-//            db.close();
-//
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return dataList;
-//    }
+    public static List<tCompte> getDataFromServer(Context context) {
+
+        List<tCompte>dataList =  new ArrayList<>();
+        try {
+            String reponse = DonneesFromMySQL.getDataFromServer(new me_URL(context).GetListeCompteAll());
+
+            //si l'insertion a réussie on update la collonne etat upate dans lse serveur
+//            JSONObject jsonObjectj = new JSONObject(reponse);
+//            JSONArray jsonArray = jsonObjectj.getJSONArray("data");
+            JSONArray jsonArray = new JSONArray(reponse);
+
+            SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+            db.beginTransaction();
+
+            for(int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                tCompte myObject = gson.fromJson(jsonObject1.toString(), tCompte.class);
+                //insertion des fournisseur dans la base de donnees
+                SQLinsertCreate(db,context,myObject);
+                //dataList.add(myObject);
+
+                Log.e("Compte "+i, Integer.toString(myObject.getNumCompte()));
+            }
+
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return dataList;
+    }
 }

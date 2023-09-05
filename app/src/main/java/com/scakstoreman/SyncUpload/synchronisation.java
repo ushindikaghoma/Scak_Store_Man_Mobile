@@ -7,7 +7,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.scakstoreman.OfflineModels.Article.tArticle;
+import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
+import com.scakstoreman.OfflineModels.Compte.tCompte;
 import com.scakstoreman.OfflineModels.Depot.tDepot;
+import com.scakstoreman.OfflineModels.Panier.tPanier;
 import com.scakstoreman.OfflineModels.PrixClient.tPrix;
 
 public class synchronisation extends AsyncTask<String,Void,String> {
@@ -39,8 +42,9 @@ public class synchronisation extends AsyncTask<String,Void,String> {
         tArticle.getDataFromServer(context);
         tPrix.getDataFromServer(context, numCompte);
         tDepot.getDataFromServer(context);
-//        tService.getDataFromServer(context);
-//        tPointControle.getDataFromServer(context);
+        tPanier.getDataFromServer(context);
+        tCompte.getDataFromServer(context);
+        tComptabilite.getDataFromServer(context);
 //        tOperation.getDataFromServer(context,currentUsers.getCurrentUsers(context).getCompte()+"");
 //        tMvmtOperation.getDataFromServer(context,currentUsers.getCurrentUsers(context).getCompte()+"");
         return null;

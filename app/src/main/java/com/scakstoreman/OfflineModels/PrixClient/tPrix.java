@@ -30,20 +30,20 @@ public class tPrix {
     public static  String PRIMARY_KEY_1 = "CodeArticle";
     public static  String PRIMARY_KEY_2 = "NumCompte";
 
-    int IdPrix;
+    int Id;
     String CodeArticle	;
     int NumCompte;
     double PrixUnitaire;
 
-    public tPrix(int idPrix, String codeArticle, int numCompte, double prixUnitaire) {
-        IdPrix = idPrix;
+    public tPrix(int id, String codeArticle, int numCompte, double prixUnitaire) {
+        Id = id;
         CodeArticle = codeArticle;
         NumCompte = numCompte;
         PrixUnitaire = prixUnitaire;
     }
 
-    public int getIdPrix() {
-        return IdPrix;
+    public int getId() {
+        return Id;
     }
 
     public String getCodeArticle() {
@@ -61,8 +61,8 @@ public class tPrix {
     public static void createSqlTable(SQLiteDatabase db){
         //creation de la table dans SQL LITE
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (\n" +
-                "  `IdPrix` integer PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
-                "  `CodeArticle` varchar(50) UNIQUE,\n" +
+                "  `Id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                "  `CodeArticle` varchar(50),\n" +
                 "  `NumCompte` integer,\n" +
                 "  `PrixUnitaire` double default(0)\n" +
                 ")");
@@ -77,7 +77,7 @@ public class tPrix {
             Log.e(TABLE_NAME,"false");
             DatabaseHandler.getInstance(context).updateTABLEall(TABLE_NAME +
                             "",
-                    PRIMARY_KEY,myObject.getIdPrix()+"",contentValues);
+                    PRIMARY_KEY,myObject.getId()+"",contentValues);
             return false;
         }else {
             //db.close();
@@ -96,7 +96,7 @@ public class tPrix {
         }
         cursor.close();
 
-        String str = String.format("%03d",prixDepot);
+//        String str = String.format("%03d",prixDepot);
 //        return "OP|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+"|"+ getTimesTamps.getimeStats()+"|"+maxID;
         return prixDepot;
     }

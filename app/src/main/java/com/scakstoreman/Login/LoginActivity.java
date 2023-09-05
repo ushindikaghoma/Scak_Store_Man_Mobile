@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.scakstoreman.Depot.data.DepotRepository;
 import com.scakstoreman.Menu.ContentMenuActivty;
 import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
 import com.scakstoreman.OfflineModels.Utilisateur.tUtilisateur;
@@ -36,6 +38,10 @@ import com.scakstoreman.serveur.me_URL;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -58,6 +64,8 @@ public class LoginActivity extends AppCompatActivity {
 
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
+
+    DepotRepository depotRepository;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +87,9 @@ public class LoginActivity extends AppCompatActivity {
         mode_type = getIntent().getStringExtra("mode_type");
 
         Toast.makeText(LoginActivity.this, ""+mode_type, Toast.LENGTH_SHORT).show();
+
+
+        depotRepository = DepotRepository.getInstance();
 
 
         connecter.setOnClickListener(new View.OnClickListener() {
@@ -395,14 +406,16 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("pref_service_user",myObject.getServiceAffe());
                         editor.putString("pref_compte_user",Integer.toString(myObject.getCompte()));
                         editor.putString("pref_depot_user",myObject.getDepotAffecter());
-                        editor.putString("pref_compte_stock_user", compte_stock_affecte);
+                        //editor.putString("pref_compte_stock_user", compte_stock_affecte);
                         editor.putString("pref_compte_depense_user", Integer.toString(myObject.getCaisseDepense()));
 
                         editor.commit();
                         editor.apply();
 
+                        CompteDepot(myObject.getDepotAffecter());
 
-                        Toast.makeText(LoginActivity.this, ""+compte_stock_affecte, Toast.LENGTH_SHORT).show();
+
+                        //Toast.makeText(LoginActivity.this, "", Toast.LENGTH_SHORT).show();
                         //Toast.makeText(LoginActivity.this, ""+myObject.getDepotAffecter(), Toast.LENGTH_SHORT).show();
                     }
 
@@ -440,5 +453,32 @@ public class LoginActivity extends AppCompatActivity {
 
             return responseReturn;
         }
+    }
+
+    public void CompteDepot(String codeDepot)
+    {
+        Call<String> call_compte_depot = depotRepository.depotConnexion().getCompteDepot(codeDepot);
+        //load.setVisibility(View.VISIBLE);
+
+        call_compte_depot.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful())
+                {
+                    editor.putString("pref_compte_stock_user", response.body());
+
+                    editor.commit();
+                    editor.apply();
+
+                    Log.e("Compte retrofit",""+response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+               // load.setVisibility(View.GONE);
+                Log.e("Echec","");
+            }
+        });
     }
 }
