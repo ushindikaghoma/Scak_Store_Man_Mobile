@@ -12,6 +12,7 @@ import com.scakstoreman.Menu.ContentMenuActivty;
 import com.scakstoreman.OfflineModels.Article.tArticle;
 import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
 import com.scakstoreman.OfflineModels.Compte.tCompte;
+import com.scakstoreman.OfflineModels.Compte.tGroupeCompte;
 import com.scakstoreman.OfflineModels.Depot.tDepot;
 import com.scakstoreman.OfflineModels.Operation.tOperation;
 import com.scakstoreman.OfflineModels.Panier.tPanier;
@@ -45,6 +46,7 @@ public class SplashScreen extends AppCompatActivity {
         tOperation.createSqlTable(DatabaseHandler.getInstance(this).getWritableDatabase());
         tCompte.createSqlTable(DatabaseHandler.getInstance(this).getWritableDatabase());
         tComptabilite.createSqlTable(DatabaseHandler.getInstance(this).getWritableDatabase());
+        tGroupeCompte.createSqlTable(DatabaseHandler.getInstance(this).getWritableDatabase());
 
         Thread myThread = new Thread()
         {

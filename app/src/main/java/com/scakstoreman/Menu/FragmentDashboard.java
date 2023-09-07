@@ -18,12 +18,18 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.scakstoreman.Achat.NouveauAchatActivity;
 import com.scakstoreman.Compte.data.CompteRepository;
 import com.scakstoreman.Compte.data.CompteResponse;
+import com.scakstoreman.OfflineModels.Comptabilite.ReleveCompteModel;
+import com.scakstoreman.OfflineModels.Comptabilite.tAchatAdapter;
+import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
+import com.scakstoreman.OfflineModels.Comptabilite.tReleverAdapter;
 import com.scakstoreman.R;
 import com.scakstoreman.Releve.AdapterReleve;
 import com.scakstoreman.Releve.TransactionCaisseActivity;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,10 +85,12 @@ public class FragmentDashboard extends Fragment {
     CompteRepository compteRepository;
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
-    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user,
+    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user, pref_mode_type,
             todayDate, prefix_operation;
     List<CompteResponse> list_local_releve;
     AdapterReleve adapterReleve;
+    List<ReleveCompteModel> dataListe;
+    tReleverAdapter _tReleverAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -122,14 +130,33 @@ public class FragmentDashboard extends Fragment {
         pref_compte_user = preferences.getString("pref_compte_user","");
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
+        pref_mode_type = preferences.getString("pref_mode_type","");
 
         textView_designation_compte.setText("CAISSE"+" "+nom_user);
         textView_numero_compte.setText(pref_compte_user);
 
-        LoadSoldeCaisse(Integer.valueOf(pref_compte_user), progress_load_solde, textView_display_balance);
-        LoadListeReleveCompte(progress_load_transactions, recyclerViewTransactions,
-                                textView_solde_jour, textView_solde_achat,
-                               Integer.parseInt(pref_compte_user) );
+        if (pref_mode_type.equals("online"))
+        {
+            LoadSoldeCaisse(Integer.valueOf(pref_compte_user), progress_load_solde, textView_display_balance);
+            LoadListeReleveCompte(progress_load_transactions, recyclerViewTransactions,
+                    textView_solde_jour, textView_solde_achat,
+                    Integer.parseInt(pref_compte_user) );
+
+        }else if (pref_mode_type.equals("offline"))
+        {
+            textView_display_balance.setText(""+new DecimalFormat("##.##").
+                    format(tComptabilite.getSoldeCompte(getContext(), pref_compte_user)));
+            dataListe = new ArrayList<>();
+            dataListe = tComptabilite.GetFirtTenOp(getContext(), dataListe, pref_compte_user);
+            _tReleverAdapter =  new tReleverAdapter(getContext(),dataListe);
+            recyclerViewTransactions.setAdapter(_tReleverAdapter);
+
+            progress_load_transactions.setVisibility(View.GONE);
+            progress_load_solde.setVisibility(View.GONE);
+
+            _tReleverAdapter.notifyDataSetChanged();
+        }else
+        {}
 
         search_all_trans.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -2,6 +2,7 @@ package com.scakstoreman.OfflineModels.Compte;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -208,6 +209,8 @@ public class tCompte {
             return true;
         }
     }
+
+
 
     public static List<tCompte> getDataFromServer(Context context) {
 

@@ -67,6 +67,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return result > 0;
     }
 
+    public boolean updateEtatOperation(String table_name, String collonne, String whereClauseCollone, String argument, int valider){
+        //cette methode permet la mis a jours de toutes les tables
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues  = new ContentValues();
+        contentValues.put(collonne,valider);
+        return db.update(table_name,contentValues,whereClauseCollone+" = ? ",new String[]{argument})>0 ;
+    }
+
+    public boolean updateOperation(String TABLE_NAME, String COLONNE_NAME,  String numOperation) {
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLONNE_NAME, 1);
+
+        return db.update(TABLE_NAME, values, "NumOperation = ?", new String[]{numOperation}) >0;
+    }
+
 
 
 

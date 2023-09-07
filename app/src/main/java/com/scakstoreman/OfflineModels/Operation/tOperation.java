@@ -121,7 +121,8 @@ public class tOperation {
 
         String str = String.format("%03d",maxID);
 //        return "OP|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+"|"+ getTimesTamps.getimeStats()+"|"+maxID;
-        return currentUsers.getCurrentUsers(context).getDepotAffecter()+
+        return currentUsers.getCurrentUsers(context).getNomUtilisateur().substring(0,2)+
+                currentUsers.getCurrentUsers(context).getDepotAffecter()+
                 "OP"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+""+""+str;
     }
 
@@ -145,5 +146,21 @@ public class tOperation {
         }
     }
 
+    public static boolean SQLUpdateOperation(Context context, String numOperation){
+        //insertion dans la table authentification telephone
+        ContentValues contentValues =  new ContentValues();
+//        long result = db.insertWithOnConflict(TABLE_NAME,null,
+//                contentValues,SQLiteDatabase.CONFLICT_IGNORE);
+//        if(result == -1){
+            Log.e(TABLE_NAME,"false");
+            DatabaseHandler.getInstance(context).updateOperation(TABLE_NAME +""
+                            ,"Valider",numOperation);
+//            return false;
+//        }else {
+            //db.close();
+            return true;
+        }
+    }
 
-}
+
+

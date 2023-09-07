@@ -8,8 +8,10 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.scakstoreman.OfflineModels.Compte.tCompte;
+import com.scakstoreman.OfflineModels.Panier.PayModel;
 import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
 import com.scakstoreman.dbconnection.DatabaseHandler;
+import com.scakstoreman.mes_classes.getTimesTamps;
 import com.scakstoreman.serveur.DonneesFromMySQL;
 import com.scakstoreman.serveur.me_URL;
 import com.scakstoreman.serveur.sendDataPost;
@@ -146,7 +148,8 @@ public class tComptabilite {
     }
 
     public static String getMaxId(Context context){
-        Cursor cursor = DatabaseHandler.getInstance(context).getWritableDatabase().rawQuery("SELECT max(Id) AS maxID FROM "+TABLE_NAME,null);
+        Cursor cursor = DatabaseHandler.getInstance(context).getWritableDatabase().
+                rawQuery("SELECT max(Id) AS maxID FROM "+TABLE_NAME,null);
         int maxID = 1;
         if(cursor.moveToNext()){
             maxID = cursor.getInt(cursor.getColumnIndexOrThrow("maxID"))+1;
@@ -156,7 +159,157 @@ public class tComptabilite {
         String str = String.format("%03d",maxID);
 //        return "OP|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+"|"+ getTimesTamps.getimeStats()+"|"+maxID;
         return currentUsers.getCurrentUsers(context).getDepotAffecter()+
-                "|MVT|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+""+"|"+str+"|";
+                "|MVT|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+""+"|"+str+"|"+ getTimesTamps.getimeStats();
+    }
+
+    public static double getSoldeCompte(Context context,String numCompte){
+        Cursor cursor =  DatabaseHandler.getInstance(context).getWritableDatabase()
+                .rawQuery("SELECT SUM(tMvtCompte.Entree) - SUM(tMvtCompte.Sortie) AS Solde " +
+                                "FROM "+TABLE_NAME+" INNER JOIN" +" tOperation ON tMvtCompte.NumOperation = tOperation.NumOperation INNER JOIN " +
+                                "tCompte ON tMvtCompte.NumCompte = tCompte.NumCompte INNER JOIN " +
+                                " tGroupeCompte ON tCompte.GroupeCompte = tGroupeCompte.GroupeCompte " +
+                                " WHERE (tOperation.DateOp BETWEEN ? AND Date() )" +
+                                " GROUP BY tCompte.NumCompte "+
+                                " HAVING        tCompte.NumCompte = ? ",
+                        new String[]{"2010-01-01 00:00:00", numCompte});
+        double solde = 0;
+        if(cursor.moveToNext()){
+            solde = cursor.getDouble(cursor.getColumnIndexOrThrow("Solde"));
+        }
+        cursor.close();
+        Log.e("Solde compte", ""+solde);
+        return  solde;
+    }
+
+    public static List<AchatJourModel> GetAchatDuJour(Context context, List<AchatJourModel> dataList, String date, String user) {
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+        //Cursor cursor = DatabaseHandler.all(db,TABLE_NAME);
+        //String req = "SELECT *  FROM "+TABLE_NAME+"  WHERE NumOperation = ?";
+        String req =" SELECT SUM(tMvtStock.QteEntree) AS QteEntree, " +
+                " SUM(tMvtStock.SommeAchat) AS Montant, tOperation.DateOp, " +
+                " tOperation.NomUt, tOperation.NumOperation, tOperation.Libelle, tOperation.Valider" +
+                " FROM   tMvtStock INNER JOIN " +
+                " tOperation ON tMvtStock.NumOperation = tOperation.NumOperation " +
+                " GROUP BY tOperation.DateOp, tOperation.NomUt, tOperation.NumOperation, " +
+                " tOperation.Libelle,tOperation.Valider " +
+                " HAVING (SUM(tMvtStock.QteEntree) <> 0) AND (tOperation.DateOp = ? ) " +
+                " AND (tOperation.NomUt = ?) AND (tOperation.Valider = 1) ";
+
+        Cursor cursor = db.rawQuery(req,new String[]{date, user});
+
+        try {
+            //convert curso to json
+            JSONArray jsonArray = DatabaseHandler.cur2Json(cursor);
+            dataList.clear();
+
+            for(int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                AchatJourModel myObject = gson.fromJson(jsonObject1.toString(), AchatJourModel.class);
+                dataList.add(myObject);
+
+                Log.e("Achat du jour", myObject.getLibelle()+" "+myObject.getMontant());
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        cursor.close();
+        db.close();
+        return dataList;
+    }
+
+    public static List<ReleveCompteModel> GetFirtTenOp(Context context, List<ReleveCompteModel> dataList, String numCompte) {
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+        //Cursor cursor = DatabaseHandler.all(db,TABLE_NAME);
+        //String req = "SELECT *  FROM "+TABLE_NAME+"  WHERE NumOperation = ?";
+        String req ="SELECT   tCompte.NumCompte, " +
+                " tCompte.DesignationCompte, tCompte.GroupeCompte, " +
+                " tOperation.NumOperation, tOperation.Libelle AS Libelle, " +
+                "tOperation.NomUt, tOperation.DateOp, tMvtCompte.Qte, tMvtCompte.Entree AS Debit, " +
+                "tMvtCompte.Sortie AS Credit, tCompte.Solde AS Solde, tMvtCompte.NumOperation, tOperation.DateOp " +
+                " FROM tMvtCompte INNER JOIN " +
+                " tOperation ON tMvtCompte.NumOperation = tOperation.NumOperation INNER JOIN " +
+                " tCompte ON tMvtCompte.NumCompte = tCompte.NumCompte " +
+                " WHERE (tOperation.Valider = 1) " +
+                " GROUP BY tMvtCompte.Details, tCompte.NumCompte, tCompte.DesignationCompte," +
+                " tCompte.GroupeCompte, tOperation.NumOperation, tOperation.Libelle, tOperation.NomUt, " +
+                " tOperation.DateOp, tMvtCompte.Qte, tMvtCompte.Entree, " +
+                " tMvtCompte.Sortie, tCompte.Solde, tMvtCompte.NumOperation, tOperation.DateOp, tOperation.Id " +
+                "HAVING (tCompte.NumCompte = ?) " +
+                "ORDER BY tOperation.DateOp, tOperation.Id LIMIT 10 ";
+
+        Cursor cursor = db.rawQuery(req,new String[]{numCompte});
+
+        try {
+            //convert curso to json
+            JSONArray jsonArray = DatabaseHandler.cur2Json(cursor);
+            dataList.clear();
+
+            for(int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                ReleveCompteModel myObject = gson.fromJson(jsonObject1.toString(), ReleveCompteModel.class);
+                dataList.add(myObject);
+
+                Log.e("releve du jour", myObject.getLibelle()+" "+myObject.getSolde());
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        cursor.close();
+        db.close();
+        return dataList;
+    }
+    public static List<ReleveCompteModel> GetReleveParDate(Context context, List<ReleveCompteModel> dataList, String numCompte, String date_debut, String date_fin) {
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+        //Cursor cursor = DatabaseHandler.all(db,TABLE_NAME);
+        //String req = "SELECT *  FROM "+TABLE_NAME+"  WHERE NumOperation = ?";
+        String req =" SELECT        tCompte.NumCompte, tCompte.DesignationCompte," +
+                " tCompte.GroupeCompte, tOperation.NumOperation, tOperation.Libelle AS Libelle, " +
+                " tOperation.NomUt, tOperation.DateOp, tMvtCompte.Qte, tMvtCompte.Entree AS Debit, " +
+                " tMvtCompte.Sortie AS Credit, tCompte.Solde AS SOlde, tMvtCompte.NumOperation," +
+                " tOperation.DateOp FROM tMvtCompte INNER JOIN " +
+                " tOperation ON tMvtCompte.NumOperation = tOperation.NumOperation INNER JOIN " +
+                " tCompte ON tMvtCompte.NumCompte = tCompte.NumCompte " +
+                " WHERE  (tOperation.DateOp BETWEEN ? " +"AND ? )" +
+                " GROUP BY tMvtCompte.Details, tCompte.NumCompte, tCompte.DesignationCompte," +
+                " tCompte.GroupeCompte, tOperation.NumOperation, tOperation.Libelle, tOperation.NomUt, " +
+                " tOperation.DateOp, tMvtCompte.Qte, tMvtCompte.Entree, "+
+                " tMvtCompte.Sortie, tCompte.Solde, tMvtCompte.NumOperation, " +
+                " tOperation.DateOp, tOperation.DateOp, tOperation.Id " +
+                "HAVING        (tCompte.NumCompte = ?) " +
+                "ORDER BY tOperation.DateOp, tOperation.Id";
+
+        Cursor cursor = db.rawQuery(req,new String[]{numCompte});
+
+        try {
+            //convert curso to json
+            JSONArray jsonArray = DatabaseHandler.cur2Json(cursor);
+            dataList.clear();
+
+            for(int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                ReleveCompteModel myObject = gson.fromJson(jsonObject1.toString(), ReleveCompteModel.class);
+                dataList.add(myObject);
+
+                Log.e("releve du jour", myObject.getLibelle()+" "+myObject.getSolde());
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        cursor.close();
+        db.close();
+        return dataList;
     }
 
     public static List<tComptabilite> getDataFromServer(Context context) {

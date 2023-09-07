@@ -17,9 +17,15 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.scakstoreman.Achat.AdapterAchat;
 import com.scakstoreman.Article.data.ArticleResponse;
+import com.scakstoreman.OfflineModels.Comptabilite.AchatJourModel;
+import com.scakstoreman.OfflineModels.Comptabilite.tAchatAdapter;
+import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
+import com.scakstoreman.OfflineModels.Panier.tPanier;
+import com.scakstoreman.OfflineModels.Panier.tPanierAdapter;
 import com.scakstoreman.Operation.OperationRepository;
 import com.scakstoreman.Operation.OperationResponse;
 import com.scakstoreman.R;
@@ -81,8 +87,10 @@ public class FragmentAchat extends Fragment {
 
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
-    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user;
+    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user, pref_mode_type;
     SwipeRefreshLayout refreshListeAchat;
+    List<AchatJourModel> dataListe;
+    tAchatAdapter _tAchatAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,6 +114,7 @@ public class FragmentAchat extends Fragment {
         pref_compte_user = preferences.getString("pref_compte_user","");
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
+        pref_mode_type = preferences.getString("pref_mode_type","");
 
         calendar = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -128,12 +137,51 @@ public class FragmentAchat extends Fragment {
         date_debut.setText(todayDate);
         date_fin.setText(todayDate);
 
-        LoadListeAchatJounalier(nom_user, todayDate, progressBarLoadAchat);
+        Toast.makeText(getContext(), "Usher"+pref_mode_type, Toast.LENGTH_SHORT).show();
+
+        if (pref_mode_type.equals("online"))
+        {
+            LoadListeAchatJounalier(nom_user, todayDate, progressBarLoadAchat);
+
+        } else if (pref_mode_type.equals("offline"))
+        {
+            dataListe = new ArrayList<>();
+            dataListe = tComptabilite.GetAchatDuJour(getContext(), dataListe, todayDate, nom_user);
+            _tAchatAdapter =  new tAchatAdapter(getContext(),dataListe);
+            recyclerViewAchatJourList.setAdapter(_tAchatAdapter);
+
+            progressBarLoadAchat.setVisibility(View.GONE);
+
+            _tAchatAdapter.notifyDataSetChanged();
+        }else
+        {
+
+        }
 
         refreshListeAchat.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                LoadListeAchatJounalier(nom_user, todayDate, progressBarLoadAchat);
+
+                if (pref_mode_type.equals("online"))
+                {
+                    LoadListeAchatJounalier(nom_user, todayDate, progressBarLoadAchat);
+
+                } else if (pref_mode_type.equals("offline"))
+                {
+                    dataListe = new ArrayList<>();
+                    dataListe = tComptabilite.GetAchatDuJour(getContext(), dataListe, todayDate, nom_user);
+                    _tAchatAdapter =  new tAchatAdapter(getContext(),dataListe);
+                    recyclerViewAchatJourList.setAdapter(_tAchatAdapter);
+
+                    progressBarLoadAchat.setVisibility(View.GONE);
+
+                    _tAchatAdapter.notifyDataSetChanged();
+                }else
+                {
+
+                }
+
+                //LoadListeAchatJounalier(nom_user, todayDate, progressBarLoadAchat);
                 refreshListeAchat.setRefreshing(false);
             }
         });
@@ -198,7 +246,24 @@ public class FragmentAchat extends Fragment {
                         },
                         year, month, day);
 
-                LoadListeAchatJounalier(nom_user, date_debut.getText().toString(), progressBarLoadAchat);
+
+
+                if (pref_mode_type.equals("online"))
+                {
+                    LoadListeAchatJounalier(nom_user, date_debut.getText().toString(), progressBarLoadAchat);
+                } else if (pref_mode_type.equals("offline"))
+                {
+                    dataListe = new ArrayList<>();
+                    dataListe = tComptabilite.GetAchatDuJour(getContext(), dataListe, date_debut.getText().toString(), nom_user);
+                    _tAchatAdapter =  new tAchatAdapter(getContext(),dataListe);
+                    recyclerViewAchatJourList.setAdapter(_tAchatAdapter);
+
+                    progressBarLoadAchat.setVisibility(View.GONE);
+
+                    _tAchatAdapter.notifyDataSetChanged();
+                }else
+                {}
+
                 datePickerDialog.show();
             }
         });

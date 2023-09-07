@@ -9,6 +9,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
@@ -36,7 +37,9 @@ import com.scakstoreman.Fournisseur.AdapterFournisseur;
 import com.scakstoreman.Fournisseur.FournisseurAdapter;
 import com.scakstoreman.OfflineModels.Article.tArticle;
 import com.scakstoreman.OfflineModels.Article.tArticleAdapter;
+import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
 import com.scakstoreman.OfflineModels.Fournisseur.*;
+import com.scakstoreman.OfflineModels.Operation.tOperation;
 import com.scakstoreman.OfflineModels.Panier.PayModel;
 import com.scakstoreman.OfflineModels.Panier.tPanier;
 import com.scakstoreman.OfflineModels.Panier.tPanierAdapter;
@@ -46,6 +49,7 @@ import com.scakstoreman.Panier.data.PanierAttenteRepository;
 import com.scakstoreman.Panier.data.PanierAttenteResponse;
 import com.scakstoreman.R;
 import com.scakstoreman.dbconnection.DataFromAPI;
+import com.scakstoreman.dbconnection.DatabaseHandler;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -170,7 +174,7 @@ public class NouveauAchatActivity extends AppCompatActivity {
                 progressBarLoadPanier.setVisibility(View.GONE);
 
                 _tPanierAdapter.notifyDataSetChanged();
-                textViewDisplayTotal.setText(""+ new DecimalFormat("##.##").format(montant_entree_extra));
+                textViewDisplayTotal.setText(""+ new DecimalFormat("##.###").format(montant_entree_extra));
             }else
             {
                 dataListe = new ArrayList<>();
@@ -182,7 +186,7 @@ public class NouveauAchatActivity extends AppCompatActivity {
 
                 _tPanierAdapter.notifyDataSetChanged();
 
-                textViewDisplayTotal.setText(""+ new DecimalFormat("##.##").format(montant_entree_extra));
+                textViewDisplayTotal.setText(""+ new DecimalFormat("##.###").format(montant_entree_extra));
             }
         }else
         {
@@ -338,14 +342,29 @@ public class NouveauAchatActivity extends AppCompatActivity {
         ProgressBar loadSoldeCaisse = dialog.findViewById(R.id.bottom_dialog_progess);
         Button confirmer = dialog.findViewById(R.id.bottom_sheet_confirmer);
 
-        loadSoldeCaisse.setVisibility(View.GONE);
+        if (pref_mode_type.equals("online"))
+        {
+            loadSoldeCaisse.setVisibility(View.GONE);
 
-        solde_caisse.setEnabled(false);
-        montant_total.setEnabled(false);
-        LoadSoldeCaisse(Integer.valueOf(pref_compte_user), loadSoldeCaisse, solde_caisse);
+            solde_caisse.setEnabled(false);
+            montant_total.setEnabled(false);
+            LoadSoldeCaisse(Integer.valueOf(pref_compte_user), loadSoldeCaisse, solde_caisse);
 
-        total_a_payer.setText("$"+textViewDisplayTotal.getText().toString());
-        montant_total.setText(textViewDisplayTotal.getText().toString());
+            total_a_payer.setText("$"+textViewDisplayTotal.getText().toString());
+            montant_total.setText(textViewDisplayTotal.getText().toString());
+
+        }else if (pref_mode_type.equals("offline"))
+        {
+            loadSoldeCaisse.setVisibility(View.GONE);
+
+            solde_caisse.setEnabled(false);
+            montant_total.setEnabled(false);
+
+            solde_caisse.setText(""+tComptabilite.getSoldeCompte(NouveauAchatActivity.this, pref_compte_user));
+
+            total_a_payer.setText("$"+textViewDisplayTotal.getText().toString());
+            montant_total.setText(textViewDisplayTotal.getText().toString());
+        }
         annuler.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -369,9 +388,68 @@ public class NouveauAchatActivity extends AppCompatActivity {
 //                       compteFournisseur, 311002, 12, dialog).execute();
 
 
-               new  AsyncNouveauMvtCompte (numOperation, libelle, libellePaiement,
-                       Integer.valueOf(pref_compte_stock_user),compteFournisseur,
-                       compteFournisseur, Integer.valueOf(pref_compte_user), montant, dialog).execute();
+               if (pref_mode_type.equals("online"))
+               {
+                   new  AsyncNouveauMvtCompte (numOperation, libelle, libellePaiement,
+                           Integer.valueOf(pref_compte_stock_user),compteFournisseur,
+                           compteFournisseur, Integer.valueOf(pref_compte_user), montant, dialog).execute();
+               }else if (pref_mode_type.equals("offline"))
+               {
+                   //Ouverture de la connexion sqlite
+                   SQLiteDatabase db =  DatabaseHandler.getInstance(NouveauAchatActivity.this).getWritableDatabase();
+                   db.beginTransaction();
+                   // Mvt pour l'achat
+                   tComptabilite mvtAchatDebit = new tComptabilite(0,0,Integer.valueOf(pref_compte_stock_user),
+                           0,numOperation,libellePaiement,"","","","",
+                           tComptabilite.getMaxId(NouveauAchatActivity.this),1,montant,0);
+                   tComptabilite mvtAchatCredit = new tComptabilite(0,0,compteFournisseur,
+                           0,numOperation,libellePaiement,"","","","",
+                           tComptabilite.getMaxId(NouveauAchatActivity.this),1,0,montant);
+
+                   //Mvt pour le paiement direct
+                   tComptabilite mvtPaimentDebit = new tComptabilite(0,0,compteFournisseur,
+                           0,numOperation,libellePaiement,"","","","",
+                           tComptabilite.getMaxId(NouveauAchatActivity.this),1,montant,0);
+                   tComptabilite mvtPaimentCredit = new tComptabilite(0,0,Integer.valueOf(pref_compte_user),
+                           0,numOperation,libellePaiement,"","","","",
+                           tComptabilite.getMaxId(NouveauAchatActivity.this),1,0,montant);
+
+                    if ((dataliste_fournisseur.isEmpty()) || (dataListe.isEmpty()))
+                    {
+                        Toast.makeText(NouveauAchatActivity.this,"Veillez selectionner le produit ou le fournissseur",Toast.LENGTH_LONG).show();
+                    }else
+                    {
+                        tComptabilite.SQLinsertCreate(db,NouveauAchatActivity.this, mvtAchatDebit);
+                        tComptabilite.SQLinsertCreate(db,NouveauAchatActivity.this, mvtAchatCredit);
+
+                        tComptabilite.SQLinsertCreate(db,NouveauAchatActivity.this, mvtPaimentDebit);
+                        tComptabilite.SQLinsertCreate(db,NouveauAchatActivity.this, mvtPaimentCredit);
+
+
+                        tOperation.SQLUpdateOperation(NouveauAchatActivity.this,numOperation);
+                        if (tOperation.SQLUpdateOperation(NouveauAchatActivity.this,numOperation))
+                        {
+                            Toast.makeText(NouveauAchatActivity.this, "Achat effectué",Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            finish();
+                        }else
+                        {
+                            Toast.makeText(NouveauAchatActivity.this, "Echec!!!",Toast.LENGTH_SHORT).show();
+
+                        }
+
+
+                        db.setTransactionSuccessful();
+                        db.endTransaction();
+                        db.close();
+
+                    }
+
+
+               }else
+               {
+
+               }
             }
         });
 

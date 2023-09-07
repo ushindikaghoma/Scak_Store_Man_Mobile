@@ -99,6 +99,10 @@ public class me_URL {
     {
         return url+"/api/Comptabilite/GetMvtCompteAll";
     }
+    public String GetListeGroupeCompteAll()
+    {
+        return url+"/api/Compte/GetListeGroupeCompteAll";
+    }
     //+++COMPTE+++=======
 
 
