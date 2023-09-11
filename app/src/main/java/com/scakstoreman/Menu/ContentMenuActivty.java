@@ -67,7 +67,7 @@ public class ContentMenuActivty extends AppCompatActivity {
         txt_nom_ustisiateur.setText(currentUsers.getCurrentUsers(ContentMenuActivty.this).getNomUtilisateur());
 
         TextView txt_mis_ajour = navigationView.findViewById(R.id.txt_date_mis_ajour);
-        txt_mis_ajour.setText("DERNIER MIS A JOUR : 2023-08-31");
+        txt_mis_ajour.setText("DERNIER MIS A JOUR : 2023-09-11");
 //
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         layout = (DrawerLayout) findViewById(R.id.main_layout);

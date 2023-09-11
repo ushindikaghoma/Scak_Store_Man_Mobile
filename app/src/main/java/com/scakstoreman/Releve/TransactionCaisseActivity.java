@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
@@ -14,8 +15,12 @@ import android.widget.TextView;
 
 import com.scakstoreman.Compte.data.CompteRepository;
 import com.scakstoreman.Compte.data.CompteResponse;
+import com.scakstoreman.OfflineModels.Comptabilite.ReleveCompteModel;
+import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
+import com.scakstoreman.OfflineModels.Comptabilite.tReleverAdapter;
 import com.scakstoreman.R;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,13 +42,29 @@ public class TransactionCaisseActivity extends AppCompatActivity {
     ProgressBar progress_load_balance, progress_load_transaction;
     TextView display_balance;
     RecyclerView recycler_liste_balance;
+    SharedPreferences preferences;
+    public static SharedPreferences.Editor editor;
+    String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user, pref_mode_type,
+            prefix_operation;
 
+    tReleverAdapter _tReleverAdapter;
+    List<ReleveCompteModel> dataListe;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_caisse);
 
         this.getSupportActionBar().setTitle("Transactions caisse");
+
+        preferences = getSharedPreferences("maPreference", MODE_PRIVATE);
+        editor = preferences.edit();
+
+
+        pref_code_depot = preferences.getString("pref_depot_user","");
+        pref_compte_user = preferences.getString("pref_compte_user","");
+        nom_user = preferences.getString("pref_nom_user","");
+        pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
+        pref_mode_type = preferences.getString("pref_mode_type","");
 
         compteRepository = CompteRepository.getInstance();
         adapterReleve = new AdapterReleve(this);
@@ -67,11 +88,30 @@ public class TransactionCaisseActivity extends AppCompatActivity {
         date_fin.setText(todayDate);
 
 
-        LoadSoldeCaisse(Integer.parseInt(num_compte_caisse_user), progress_load_balance, display_balance);
 
 
-        LoadListeReleveCompte(progress_load_transaction, recycler_liste_balance, Integer.parseInt(num_compte_caisse_user),
-                "2010-01-01", todayDate);
+        if (pref_mode_type.equals("online"))
+        {
+            LoadSoldeCaisse(Integer.parseInt(num_compte_caisse_user), progress_load_balance, display_balance);
+
+            LoadListeReleveCompte(progress_load_transaction, recycler_liste_balance, Integer.parseInt(num_compte_caisse_user),
+                    "2010-01-01", todayDate);
+        }else if (pref_mode_type.equals("offline"))
+        {
+            display_balance.setText(""+new DecimalFormat("##.##").
+                    format(tComptabilite.getSoldeCompte(TransactionCaisseActivity.this, pref_compte_user)));
+            dataListe = new ArrayList<>();
+            dataListe = tComptabilite.GetReleveParDate(TransactionCaisseActivity.this, dataListe,
+                    pref_compte_user,"2010-01-01", todayDate);
+            _tReleverAdapter =  new tReleverAdapter(TransactionCaisseActivity.this,dataListe);
+            recycler_liste_balance.setAdapter(_tReleverAdapter);
+
+            progress_load_transaction.setVisibility(View.GONE);
+            progress_load_balance.setVisibility(View.GONE);
+
+            _tReleverAdapter.notifyDataSetChanged();
+        }else
+        {}
 
 
         date_debut.setOnClickListener(new View.OnClickListener() {
@@ -134,8 +174,28 @@ public class TransactionCaisseActivity extends AppCompatActivity {
                         },
                         year, month, day);
 
-                LoadListeReleveCompte(progress_load_transaction, recycler_liste_balance, Integer.parseInt(num_compte_caisse_user),
-                        date_debut.getText().toString(), date_fin.getText().toString());
+                if (pref_mode_type.equals("online"))
+                {
+
+                    LoadListeReleveCompte(progress_load_transaction, recycler_liste_balance, Integer.parseInt(num_compte_caisse_user),
+                            date_debut.getText().toString(), date_fin.getText().toString());
+                }else if (pref_mode_type.equals("offline"))
+                {
+                    display_balance.setText(""+new DecimalFormat("##.##").
+                            format(tComptabilite.getSoldeCompte(TransactionCaisseActivity.this, pref_compte_user)));
+                    dataListe = new ArrayList<>();
+                    dataListe = tComptabilite.GetReleveParDate(TransactionCaisseActivity.this, dataListe,
+                            pref_compte_user,date_debut.getText().toString(), date_fin.getText().toString());
+                    _tReleverAdapter =  new tReleverAdapter(TransactionCaisseActivity.this,dataListe);
+                    recycler_liste_balance.setAdapter(_tReleverAdapter);
+
+                    progress_load_transaction.setVisibility(View.GONE);
+                    progress_load_balance.setVisibility(View.GONE);
+
+                    _tReleverAdapter.notifyDataSetChanged();
+                }else
+                {}
+
                 datePickerDialog.show();
             }
         });

@@ -1,6 +1,5 @@
 package com.scakstoreman.OfflineModels.Panier;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,34 +8,25 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.scakstoreman.OfflineModels.Article.tArticle;
-import com.scakstoreman.OfflineModels.Operation.tOperation;
 import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
-import com.scakstoreman.Operation.OperationRepository;
-import com.scakstoreman.Operation.OperationResponse;
 import com.scakstoreman.Operation.Reponse;
 import com.scakstoreman.Panier.data.PanierAttenteRepository;
 import com.scakstoreman.Panier.data.PanierAttenteResponse;
 import com.scakstoreman.dbconnection.DatabaseHandler;
-import com.scakstoreman.mes_classes.date_du_jour;
-import com.scakstoreman.serveur.DonneesFromMySQL;
-import com.scakstoreman.serveur.me_URL;
+import com.scakstoreman.mes_classes.getTimesTamps;
 import com.scakstoreman.serveur.sendDataPost;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class tPanier {
+public class tPanierAttente {
 
-    public static  String TABLE_NAME = "tMvtStock";
+    public static  String TABLE_NAME = "tMvtStockEnAttente";
     public static  String PRIMARY_KEY = "NumMvtStock";
     String CodeArticle, CodePompe, CodeDepot, NumOperation, RefComptabilite,
             NumDevis, NumeroBon, Chambre, NumMvtStock, DesignationArticle;
@@ -44,15 +34,17 @@ public class tPanier {
             Vente, Entree, SommeAchat, QteEntreeAchat, Achat, IndexDemarrer;
     int NumRef, Id, EtatUpload;
 
-    public tPanier(String codeArticle, String codePompe, String codeDepot,
-                   String numOperation, String refComptabilite,
-                   String numDevis, String numeroBon,
-                   String chambre, String numMvtStock, double PR,
-                   double PVentUN, double qteEntree, double qteSortie,
-                   double sortie, double qteSortieVente,
-                   double sommeVente, double vente, double entree,
-                   double sommeAchat, double qteEntreeAchat,
-                   double achat, double indexDemarrer, int numRef, int id, int etatUpload) {
+    public tPanierAttente(String codeArticle, String codePompe, String codeDepot,
+                          String numOperation, String refComptabilite,
+                          String numDevis, String numeroBon,
+                          String chambre, String numMvtStock, double PR,
+                          double PVentUN, double qteEntree,
+                          double qteSortie, double sortie,
+                          double qteSortieVente, double sommeVente,
+                          double vente, double entree,
+                          double sommeAchat, double qteEntreeAchat,
+                          double achat, double indexDemarrer,
+                          int numRef, int id, int etatUpload) {
         CodeArticle = codeArticle;
         CodePompe = codePompe;
         CodeDepot = codeDepot;
@@ -116,6 +108,10 @@ public class tPanier {
         return NumMvtStock;
     }
 
+//    public String getDesignationArticle() {
+//        return DesignationArticle;
+//    }
+
     public double getPR() {
         return PR;
     }
@@ -175,13 +171,10 @@ public class tPanier {
     public int getId() {
         return Id;
     }
+
     public int getEtatUpload() {
         return EtatUpload;
     }
-//    public String getDesignationArticle()
-//    {
-//        return DesignationArticle;
-//    }
 
     public static void createSqlTable(SQLiteDatabase db){
         //creation de la table dans SQL LITE
@@ -214,7 +207,6 @@ public class tPanier {
                 ")");
     }
 
-
     public static String getMaxId(Context context){
         Cursor cursor = DatabaseHandler.getInstance(context).getWritableDatabase().rawQuery("SELECT max(Id) AS maxID FROM "+TABLE_NAME,null);
         int maxID = 1;
@@ -226,10 +218,10 @@ public class tPanier {
         String str = String.format("%03d",maxID);
 //        return "OP|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+"|"+ getTimesTamps.getimeStats()+"|"+maxID;
         return currentUsers.getCurrentUsers(context).getDepotAffecter()+
-                "|MVT|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+""+""+str;
+                "|MVT|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+""+""+str+""+ getTimesTamps.getimeStats();
     }
 
-    public static boolean SQLinsertCreate(SQLiteDatabase db, Context context, tPanier myObject){
+    public static boolean SQLinsertCreate(SQLiteDatabase db, Context context, tPanierAttente myObject){
         //insertion dans la table authentification telephone
         ContentValues contentValues =  DatabaseHandler.contentValuesFromHashMapOperation(sendDataPost.parameters(myObject));
         long result = db.insertWithOnConflict(TABLE_NAME,null,
@@ -246,88 +238,6 @@ public class tPanier {
         }
     }
 
-    public static List<PayModel> GetLoadPanier(Context context,List<PayModel> dataList, String numOperation) {
-        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
-        //Cursor cursor = DatabaseHandler.all(db,TABLE_NAME);
-        //String req = "SELECT *  FROM "+TABLE_NAME+"  WHERE NumOperation = ?";
-        String req =" SELECT tStock.DesegnationArticle as DesignationArticle, " +
-                "tMvtStock.CodeArticle, " +
-                "tMvtStock.PR, tMvtStock.PVentUN, " +
-                "tMvtStock.QteEntree, " +
-                "tMvtStock.NumOperation, " +
-                "tMvtStock.CodeDepot, " +
-                "tMvtStock.QteSortie, tMvtStock.Sortie, " +
-                "tMvtStock.QteSortieVente,  " +
-                "tMvtStock.QteEntreeAchat,  " +
-                "tMvtStock.SommeVente, " +
-                "tMvtStock.SommeAchat, " +
-                "tMvtStock.Vente, " +
-                "tMvtStock.Achat, " +
-                "tMvtStock.Entree, " +
-                "tMvtStock.RefComptabilite," +
-                " tMvtStock.NumRef " +
-                " FROM tMvtStock " +
-                " INNER JOIN tStock ON tMvtStock.CodeArticle = tStock.CodeArticle WHERE(tMvtStock.NumOperation = ?)";
-
-        Cursor cursor = db.rawQuery(req,new String[]{numOperation});
-
-        try {
-            //convert curso to json
-            JSONArray jsonArray = DatabaseHandler.cur2Json(cursor);
-            dataList.clear();
-
-            for(int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
-                Gson gson = new Gson(); // Or use new GsonBuilder().create();
-                PayModel myObject = gson.fromJson(jsonObject1.toString(), PayModel.class);
-                dataList.add(myObject);
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        cursor.close();
-        db.close();
-        return dataList;
-    }
-
-    public static List<tPanier> getDataFromServer(Context context) {
-
-        List<tPanier>dataList =  new ArrayList<>();
-        try {
-            String reponse = DonneesFromMySQL.getDataFromServer(new me_URL(context).GetMvtStockAll());
-
-            //si l'insertion a réussie on update la collonne etat upate dans lse serveur
-//            JSONObject jsonObjectj = new JSONObject(reponse);
-//            JSONArray jsonArray = jsonObjectj.getJSONArray("data");
-            JSONArray jsonArray = new JSONArray(reponse);
-
-            SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
-            db.beginTransaction();
-
-            for(int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
-                Gson gson = new Gson(); // Or use new GsonBuilder().create();
-                tPanier myObject = gson.fromJson(jsonObject1.toString(), tPanier.class);
-                //insertion de l'utiilisateur dans la base de donnees
-                SQLinsertCreate(db,context,myObject);
-                //dataList.add(myObject);
-
-                Log.e("eruur "+i,myObject.getNumOperation());
-            }
-
-            db.setTransactionSuccessful();
-            db.endTransaction();
-            db.close();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return dataList;
-    }
     public static Cursor getDataToUploda (Context context){
         Cursor cursor =  DatabaseHandler.getInstance(context)
                 .getWritableDatabase()
@@ -349,7 +259,7 @@ public class tPanier {
             try {
                 jsonObject1 = jsonArray.getJSONObject(i);
                 Gson gson = new Gson(); // Or use new GsonBuilder().create();
-                tPanier myObject = gson.fromJson(jsonObject1.toString(), tPanier.class);
+                tPanierAttente myObject = gson.fromJson(jsonObject1.toString(), tPanierAttente.class);
 
                 uploadDataToServer(context,myObject);
             } catch (JSONException e) {
@@ -361,7 +271,7 @@ public class tPanier {
     }
 
 
-    public static void uploadDataToServer(Context context,tPanier myObject)
+    public static void uploadDataToServer(Context context,tPanierAttente myObject)
     {
 
         PanierAttenteRepository panierAttenteRepository = PanierAttenteRepository.getInstance();
@@ -372,12 +282,12 @@ public class tPanier {
         panierAttenteResponse.setCodeArticle(myObject.getCodeArticle());
         panierAttenteResponse.setPrixRevient(myObject.getPR());
         panierAttenteResponse.setPrixVenteUnitaire(myObject.getPVentUN());
-        panierAttenteResponse.setQuantiteSortie(0);
+        panierAttenteResponse.setQuantiteSortie(myObject.getQteSortie());
         panierAttenteResponse.setQuantiteEntree(myObject.getQteEntree());
-        panierAttenteResponse.setQuantiteEntreeAchat(myObject.getQteEntree());
+        panierAttenteResponse.setQuantiteEntreeAchat(myObject.getQteEntreeAchat());
         panierAttenteResponse.setNumOperation(myObject.getNumOperation());
         panierAttenteResponse.setRefComptabilite("");
-        panierAttenteResponse.setSortie(0);
+        panierAttenteResponse.setSortie(myObject.getSortie());
         panierAttenteResponse.setQteSortieVente(0);
         panierAttenteResponse.setSommeVente(0);
         panierAttenteResponse.setVente(0);
@@ -390,7 +300,7 @@ public class tPanier {
         panierAttenteResponse.setCodeChambre("");
         panierAttenteResponse.setNumMvtStock(myObject.getNumMvtStock());
 
-        panierAttenteRepository.panierAttenteConnexion().SavePanier(panierAttenteResponse).enqueue(new Callback<Reponse>()
+        panierAttenteRepository.panierAttenteConnexion().SavePanierAttente(panierAttenteResponse).enqueue(new Callback<Reponse>()
         {
             @Override
             public void onResponse(Call<Reponse> call, Response<Reponse> response) {
@@ -409,7 +319,7 @@ public class tPanier {
                                 "NumMvtStock",myObject.getNumMvtStock(),1);
 //                        Log.e("susss","true");
                     }else{
-                        if (message.contains("Cannot insert duplicate key row in object 'dbo.tMvtStock' with unique index 'IX_tMvtStock_1'")){
+                        if (message.contains("Cannot insert duplicate key row in object 'dbo.tMvtStockEnAttente' with unique index 'IX_tMvtStockEnAttente_1'")){
                             DatabaseHandler.getInstance(context).updateEtatUpload(
                                     TABLE_NAME,"EtatUpload",
                                     "NumMvtStock",myObject.getNumMvtStock(),1);

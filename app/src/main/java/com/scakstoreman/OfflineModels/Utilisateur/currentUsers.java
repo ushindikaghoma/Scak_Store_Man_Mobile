@@ -36,7 +36,8 @@ public class currentUsers {
     public static void setConnexionTrue(Context context){
         //cette methode pour enregistres dans les preferences que la connexion a reussi
 
-        SharedPreferences shared = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
+        //SharedPreferences shared = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
+        SharedPreferences shared = context.getSharedPreferences("maPreference", Context.MODE_PRIVATE);
         SharedPreferences.Editor editorr = shared.edit();
         editorr.putString("authLogin","true");
         editorr.apply();
@@ -45,7 +46,8 @@ public class currentUsers {
     }
     public static void setDeconnexionTrue(Activity context){
         //lors de la dexonnexion
-        SharedPreferences shared = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
+        //SharedPreferences shared = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
+        SharedPreferences shared = context.getSharedPreferences("maPreference", Context.MODE_PRIVATE);
         SharedPreferences.Editor editorr = shared.edit();
         editorr.putString("authLogin","");
         editorr.apply();

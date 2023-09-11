@@ -5,11 +5,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.scakstoreman.Comptabilite.data.ComptabiliteRepository;
+import com.scakstoreman.Comptabilite.data.ComptabiliteResponse;
 import com.scakstoreman.OfflineModels.Compte.tCompte;
 import com.scakstoreman.OfflineModels.Panier.PayModel;
+import com.scakstoreman.OfflineModels.Panier.tPanierAttente;
 import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
+import com.scakstoreman.Operation.Reponse;
+import com.scakstoreman.Panier.data.PanierAttenteRepository;
+import com.scakstoreman.Panier.data.PanierAttenteResponse;
 import com.scakstoreman.dbconnection.DatabaseHandler;
 import com.scakstoreman.mes_classes.getTimesTamps;
 import com.scakstoreman.serveur.DonneesFromMySQL;
@@ -22,6 +29,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class tComptabilite {
     public static  String TABLE_NAME = "tMvtCompte";
@@ -168,7 +179,7 @@ public class tComptabilite {
                                 "FROM "+TABLE_NAME+" INNER JOIN" +" tOperation ON tMvtCompte.NumOperation = tOperation.NumOperation INNER JOIN " +
                                 "tCompte ON tMvtCompte.NumCompte = tCompte.NumCompte INNER JOIN " +
                                 " tGroupeCompte ON tCompte.GroupeCompte = tGroupeCompte.GroupeCompte " +
-                                " WHERE (tOperation.DateOp BETWEEN ? AND Date() )" +
+                                " WHERE (tOperation.DateOp BETWEEN ? AND Date() ) AND (tOperation.Valider = 1)" +
                                 " GROUP BY tCompte.NumCompte "+
                                 " HAVING        tCompte.NumCompte = ? ",
                         new String[]{"2010-01-01 00:00:00", numCompte});
@@ -270,23 +281,23 @@ public class tComptabilite {
         SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
         //Cursor cursor = DatabaseHandler.all(db,TABLE_NAME);
         //String req = "SELECT *  FROM "+TABLE_NAME+"  WHERE NumOperation = ?";
-        String req =" SELECT        tCompte.NumCompte, tCompte.DesignationCompte," +
+        String req =" SELECT tCompte.NumCompte, tCompte.DesignationCompte, " +
                 " tCompte.GroupeCompte, tOperation.NumOperation, tOperation.Libelle AS Libelle, " +
                 " tOperation.NomUt, tOperation.DateOp, tMvtCompte.Qte, tMvtCompte.Entree AS Debit, " +
                 " tMvtCompte.Sortie AS Credit, tCompte.Solde AS SOlde, tMvtCompte.NumOperation," +
                 " tOperation.DateOp FROM tMvtCompte INNER JOIN " +
                 " tOperation ON tMvtCompte.NumOperation = tOperation.NumOperation INNER JOIN " +
                 " tCompte ON tMvtCompte.NumCompte = tCompte.NumCompte " +
-                " WHERE  (tOperation.DateOp BETWEEN ? " +"AND ? )" +
+                " WHERE  (tOperation.Valider = 1 AND tOperation.DateOp BETWEEN ? " +"AND ? )" +
                 " GROUP BY tMvtCompte.Details, tCompte.NumCompte, tCompte.DesignationCompte," +
                 " tCompte.GroupeCompte, tOperation.NumOperation, tOperation.Libelle, tOperation.NomUt, " +
                 " tOperation.DateOp, tMvtCompte.Qte, tMvtCompte.Entree, "+
                 " tMvtCompte.Sortie, tCompte.Solde, tMvtCompte.NumOperation, " +
                 " tOperation.DateOp, tOperation.DateOp, tOperation.Id " +
                 "HAVING        (tCompte.NumCompte = ?) " +
-                "ORDER BY tOperation.DateOp, tOperation.Id";
+                "ORDER BY tOperation.DateOp, tOperation.Id DESC";
 
-        Cursor cursor = db.rawQuery(req,new String[]{numCompte});
+        Cursor cursor = db.rawQuery(req,new String[]{date_debut, date_fin, numCompte});
 
         try {
             //convert curso to json
@@ -346,5 +357,111 @@ public class tComptabilite {
         }
 
         return dataList;
+    }
+
+    public static Cursor getDataToUploda (Context context){
+        Cursor cursor =  DatabaseHandler.getInstance(context)
+                .getWritableDatabase()
+                .rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE EtatUpload = ? ",new String[]{"0"});
+
+        return  cursor;
+    }
+
+
+    public static String sendDataToServer(Context context){
+
+        String reponse = "";
+        Cursor cursor =  getDataToUploda(context);
+
+        //convert curso to json
+        JSONArray jsonArray = DatabaseHandler.cur2Json(cursor);
+        for(int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject1 = null;
+            try {
+                jsonObject1 = jsonArray.getJSONObject(i);
+                Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                tComptabilite myObject = gson.fromJson(jsonObject1.toString(), tComptabilite.class);
+
+                uploadDataToServer(context,myObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return  reponse;
+    }
+
+
+    public static void uploadDataToServer(Context context,tComptabilite myObject)
+    {
+
+        ComptabiliteRepository comptabiliteRepository = ComptabiliteRepository.getInstance();
+        ComptabiliteResponse comptabiliteResponse = new ComptabiliteResponse();
+
+        comptabiliteResponse.setNumOperation(myObject.getNumOperation());
+        comptabiliteResponse.setLibelle(myObject.getDetails());
+        comptabiliteResponse.setNumCompteDebitEntree(myObject.getNumCompte());
+        comptabiliteResponse.setNumCompteCreditSortie(myObject.getNumCompte());
+        comptabiliteResponse.setMontant(myObject.getEntree());
+        comptabiliteResponse.setMontant(myObject.getSortie());
+        comptabiliteResponse.setQte(1);
+        comptabiliteResponse.setDesignationCompteDebit("");
+        comptabiliteResponse.setDesignationCreditSortie("");
+        comptabiliteResponse.setNumMvtCompte(myObject.getNumMvtCompte());
+
+        comptabiliteRepository.comptabiliteConnexion().SaveMvtCompte(comptabiliteResponse).enqueue(new Callback<Reponse>()
+        {
+            @Override
+            public void onResponse(Call<Reponse> call, Response<Reponse> response) {
+                if (response.isSuccessful())
+                {
+
+
+                    Reponse saveee = response.body();
+                    boolean success = saveee.isSucces();
+                    String message = saveee.getMessage();
+                    Log.e("OPERATION",response.body().toString());
+                    if(success){
+                        //                    //UPDATE DE LA TABLE POUR SIGNALER QUE L'ETAT DE BESOINS EST SYNCHRONISER
+                        DatabaseHandler.getInstance(context).updateEtatUpload(
+                                TABLE_NAME,"EtatUpload",
+                                "NumMvtCompte",myObject.getNumMvtCompte(),1);
+//                        Log.e("susss","true");
+                    }else{
+                        if (message.contains("Cannot insert duplicate key row in object 'dbo.tMvtCompte' with unique index 'IX_tMvtCompte_1'")){
+                            DatabaseHandler.getInstance(context).updateEtatUpload(
+                                    TABLE_NAME,"EtatUpload",
+                                    "NumMvtCompte",myObject.getNumMvtCompte(),1);
+                        }
+                    }
+
+//                    DatabaseHandler.getInstance(context).updateEtatUpload(
+//                            TABLE_NAME,"etatUpload",
+//                            "numOperation",myObject.getNumOperation(),1);
+//                    Toast.makeText(context, "Operation créee", Toast.LENGTH_LONG).show();
+//                    Log.e("Ope",""+response);
+                }
+                else
+                {
+                    switch (response.code())
+                    {
+                        case 404:
+                            Toast.makeText(context, "Serveur introuvable", Toast.LENGTH_LONG).show();
+                            break;
+                        case 500:
+                            Toast.makeText(context, "Serveur en pane",Toast.LENGTH_LONG).show();
+                            break;
+                        default:
+                            Toast.makeText(context, "Erreur inconnu", Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Reponse> call, Throwable t) {
+                Toast.makeText(context, "Probleme de connection", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

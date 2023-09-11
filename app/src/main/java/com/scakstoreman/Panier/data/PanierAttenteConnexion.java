@@ -1,5 +1,7 @@
 package com.scakstoreman.Panier.data;
 
+import com.scakstoreman.Operation.Reponse;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -13,6 +15,11 @@ public interface PanierAttenteConnexion {
     @POST("api/Stock/PanierStation")
 //    @POST("api/Stock/PanierAttenteStation")
     Call<Integer> insertPanierAttenteStation(@Body PanierAttenteResponse panierAttenteResponse);
+
+    @POST("api/Stock/SavePanier")
+    Call<Reponse> SavePanier(@Body PanierAttenteResponse panierAttenteResponse);
+    @POST("api/Stock/SavePanierAttente")
+    Call<Reponse> SavePanierAttente(@Body PanierAttenteResponse panierAttenteResponse);
 
     @POST("api/Stock/PanierAttenteStation")
     Call<Integer> savePanierAttenteStation(@Body PanierAttenteResponse panierAttenteResponse);

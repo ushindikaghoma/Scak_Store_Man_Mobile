@@ -9,6 +9,8 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.scakstoreman.OfflineModels.Compte.tCompte;
+import com.scakstoreman.OfflineModels.Stock.tFicheStockModel;
+import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
 import com.scakstoreman.dbconnection.DatabaseHandler;
 import com.scakstoreman.serveur.DonneesFromMySQL;
 import com.scakstoreman.serveur.me_URL;
@@ -147,8 +149,8 @@ public class tDepot {
     public static void createSqlTable(SQLiteDatabase db){
         //creation de la table dans SQL LITE
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (\n" +
-                "  `IdAuto` INTEGER PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
-                "  `Id` integer not null,\n" +
+                "  `IdAuto` default(null) ,\n" +
+                "  `Id` integer PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
                 "  `CodeDepot` varchar(50) UNIQUE,\n" +
                 "  `CodeCategorieDepot` integer default(null),\n" +
                 "  `DesignationDepot` varchar(50) default(null),\n" +
@@ -185,6 +187,75 @@ public class tDepot {
             //db.close();
             return true;
         }
+    }
+
+    public static List<tDepot> GetListeDepot(Context context, List<tDepot> dataList) {
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+        //Cursor cursor = DatabaseHandler.all(db,TABLE_NAME);
+        //String req = "SELECT *  FROM "+TABLE_NAME+"  WHERE NumOperation = ?";
+        String req ="SELECT * FROM tDepot";
+
+        Cursor cursor = db.rawQuery(req,new String[]{});
+
+        try {
+            //convert curso to json
+            JSONArray jsonArray = DatabaseHandler.cur2Json(cursor);
+            dataList.clear();
+
+            for(int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                Gson gson = new Gson(); // Or use new GsonBuilder().create();
+                tDepot myObject = gson.fromJson(jsonObject1.toString(), tDepot.class);
+                dataList.add(myObject);
+
+                Log.e("fiche de stock du jour", myObject.getDesignationDepot());
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        cursor.close();
+        db.close();
+        return dataList;
+    }
+
+    public static List<String> listeDepot(Context context)
+    {
+        List<String> list = new ArrayList<String>();
+
+
+        String selectQuery = "SELECT  * FROM " + TABLE_NAME;
+
+        SQLiteDatabase db = DatabaseHandler.getInstance(context).getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(cursor.getString(4));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return list;
+    }
+    public static String getCodeDepot(Context context, String designationDepot){
+        Cursor cursor = DatabaseHandler.getInstance(context).getWritableDatabase().
+                rawQuery("SELECT CodeDepot AS CodeDepot FROM "+TABLE_NAME+
+                        " WHERE tDepot.DesignationDepot =  ? ",
+                        new String[]{designationDepot});
+        String codeDepot = "";
+        if(cursor.moveToNext()){
+            codeDepot = cursor.getString(cursor.getColumnIndexOrThrow("CodeDepot"));
+        }
+        cursor.close();
+
+        //String str = String.format("%03d",codeDepot);
+//        return "OP|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+"|"+ getTimesTamps.getimeStats()+"|"+maxID;
+        return codeDepot;
     }
 
     public static int GetUserCompteStock(Activity context, String depotAffecte){

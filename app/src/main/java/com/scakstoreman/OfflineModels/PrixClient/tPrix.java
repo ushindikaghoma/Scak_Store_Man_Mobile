@@ -26,17 +26,18 @@ import java.util.List;
 public class tPrix {
 
     public static  String TABLE_NAME = "tPrixClient";
-    public static  String PRIMARY_KEY = "IdPrix";
+    public static  String PRIMARY_KEY = "Id";
     public static  String PRIMARY_KEY_1 = "CodeArticle";
     public static  String PRIMARY_KEY_2 = "NumCompte";
 
-    int Id;
+    int Id, Code;
     String CodeArticle	;
     int NumCompte;
     double PrixUnitaire;
 
-    public tPrix(int id, String codeArticle, int numCompte, double prixUnitaire) {
+    public tPrix(int id, int code, String codeArticle, int numCompte, double prixUnitaire) {
         Id = id;
+        Code = code;
         CodeArticle = codeArticle;
         NumCompte = numCompte;
         PrixUnitaire = prixUnitaire;
@@ -44,6 +45,10 @@ public class tPrix {
 
     public int getId() {
         return Id;
+    }
+
+    public int getCode() {
+        return Code;
     }
 
     public String getCodeArticle() {
@@ -62,6 +67,7 @@ public class tPrix {
         //creation de la table dans SQL LITE
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (\n" +
                 "  `Id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                "  `Code` INTEGER UNIQUE NOT NULL,\n" +
                 "  `CodeArticle` varchar(50),\n" +
                 "  `NumCompte` integer,\n" +
                 "  `PrixUnitaire` double default(0)\n" +

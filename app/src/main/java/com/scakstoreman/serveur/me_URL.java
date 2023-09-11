@@ -105,6 +105,12 @@ public class me_URL {
     }
     //+++COMPTE+++=======
 
+    //+++OPERATIONS+++=======
+    public String GetOperationAll()
+    {
+        return url +"/api/Operation/GetOperationAll";
+    }
+    //+++OPERATIONS+++=======
 
 
    public String getService(){

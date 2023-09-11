@@ -51,7 +51,7 @@ public class ModeType extends AppCompatActivity {
 
                 if(adresseIP.length() == 0){
                     //editorr.putString("adresseServeurWallet","paiement.afri-soft.com");
-                    editorr.putString("adresseServeur", "192.168.1.27/TouchBistroIshango");
+                    editorr.putString("adresseServeur", "192.168.1.30/TouchBistroIshango");
                     editorr.apply();
                     editorr.commit();
                 }

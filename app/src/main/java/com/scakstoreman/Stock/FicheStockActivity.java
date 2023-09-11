@@ -11,7 +11,12 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
+import com.scakstoreman.OfflineModels.Comptabilite.tReleverAdapter;
+import com.scakstoreman.OfflineModels.Stock.tFicheStockAdapter;
+import com.scakstoreman.OfflineModels.Stock.tFicheStockModel;
 import com.scakstoreman.R;
 import com.scakstoreman.Releve.TransactionCaisseActivity;
 import com.scakstoreman.Stock.data.AdapterFicheStock;
@@ -36,15 +41,21 @@ public class FicheStockActivity extends AppCompatActivity {
     ProgressBar progressBarLoadFiche;
     EditText date_debut, date_fin;
     String todayDate, codeDepot, codeArticle, pref_code_depot,
-            pref_compte_user, pref_compte_stock_user,nom_user, date_anterieure;
+            pref_compte_user, pref_compte_stock_user,nom_user,
+            date_anterieure, pref_mode_type;
     Calendar calendar;
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
+
+    List<tFicheStockModel> dataListe;
+    tFicheStockAdapter _tFicheAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fiche_stock);
 
+        this.getSupportActionBar().setTitle("Fiche de stock");
 
         stockRepository = StockRepository.getInstance();
         adapterFicheStock = new AdapterFicheStock(this);
@@ -75,12 +86,34 @@ public class FicheStockActivity extends AppCompatActivity {
         pref_compte_user = preferences.getString("pref_compte_user","");
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
+        pref_mode_type = preferences.getString("pref_mode_type","");
 
         date_debut.setText(date_anterieure);
         date_fin.setText(todayDate);
 
-        LoadListeStock(progressBarLoadFiche, recyclerViewFicheStock, codeArticle,pref_code_depot,
-                date_debut.getText().toString(), todayDate);
+        Toast.makeText(FicheStockActivity.this, ""+codeArticle, Toast.LENGTH_LONG).show();
+
+
+        if (pref_mode_type.equals("online"))
+        {
+            LoadListeStock(progressBarLoadFiche, recyclerViewFicheStock, codeArticle,pref_code_depot,
+                    date_debut.getText().toString(), todayDate);
+
+        }else if (pref_mode_type.equals("offline"))
+        {
+            dataListe = new ArrayList<>();
+            dataListe = tFicheStockModel.GetFicheStock(FicheStockActivity.this, dataListe,
+                    codeArticle,pref_code_depot,date_debut.getText().toString(), todayDate);
+            _tFicheAdapter =  new tFicheStockAdapter(FicheStockActivity.this,dataListe);
+            recyclerViewFicheStock.setAdapter(_tFicheAdapter);
+
+            progressBarLoadFiche.setVisibility(View.GONE);
+
+            _tFicheAdapter.notifyDataSetChanged();
+        }else
+        {
+
+        }
 
 
         date_debut.setOnClickListener(new View.OnClickListener() {
@@ -143,8 +176,30 @@ public class FicheStockActivity extends AppCompatActivity {
                         },
                         year, month, day);
 
-                LoadListeStock(progressBarLoadFiche, recyclerViewFicheStock, codeArticle,pref_code_depot,
-                        date_debut.getText().toString(), date_fin.getText().toString());
+//                LoadListeStock(progressBarLoadFiche, recyclerViewFicheStock, codeArticle,pref_code_depot,
+//                        date_debut.getText().toString(), date_fin.getText().toString());
+
+                if (pref_mode_type.equals("online"))
+                {
+                    LoadListeStock(progressBarLoadFiche, recyclerViewFicheStock, codeArticle,pref_code_depot,
+                            date_debut.getText().toString(), date_fin.getText().toString());
+
+                }else if (pref_mode_type.equals("offline"))
+                {
+                    dataListe = new ArrayList<>();
+                    dataListe = tFicheStockModel.GetFicheStock(FicheStockActivity.this, dataListe,
+                            codeArticle,pref_code_depot,date_debut.getText().toString(), date_fin.getText().toString());
+                    _tFicheAdapter =  new tFicheStockAdapter(FicheStockActivity.this,dataListe);
+                    recyclerViewFicheStock.setAdapter(_tFicheAdapter);
+
+                    progressBarLoadFiche.setVisibility(View.GONE);
+
+                    _tFicheAdapter.notifyDataSetChanged();
+                }else
+                {
+
+                }
+
                 datePickerDialog.show();
             }
         });

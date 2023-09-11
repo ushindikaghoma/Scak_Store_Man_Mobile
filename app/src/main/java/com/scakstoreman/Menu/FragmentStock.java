@@ -14,8 +14,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.scakstoreman.Compte.data.CompteResponse;
+import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
+import com.scakstoreman.OfflineModels.Comptabilite.tReleverAdapter;
+import com.scakstoreman.OfflineModels.Stock.tStockAdapter;
+import com.scakstoreman.OfflineModels.Stock.tStockDepot;
 import com.scakstoreman.R;
 import com.scakstoreman.Stock.data.AdapterStock;
 import com.scakstoreman.Stock.data.StockRepository;
@@ -75,7 +80,10 @@ public class FragmentStock extends Fragment {
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
     String pref_code_depot, pref_compte_user, pref_compte_stock_user,nom_user,
-            todayDate, prefix_operation;
+            todayDate, prefix_operation, pref_mode_type;
+
+    List<tStockDepot> dataListe;
+    tStockAdapter _tStoclAdapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,9 +116,28 @@ public class FragmentStock extends Fragment {
         pref_compte_user = preferences.getString("pref_compte_user","");
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
+        pref_mode_type = preferences.getString("pref_mode_type","");
 
-        LoadListeStock(progressBarLoadStock,
-                recyclerViewStock, Integer.valueOf(pref_compte_stock_user),pref_code_depot);
+        Toast.makeText(getContext(), ""+pref_mode_type, Toast.LENGTH_LONG).show();
+
+        if (pref_mode_type.equals("online"))
+        {
+            LoadListeStock(progressBarLoadStock,
+                    recyclerViewStock, Integer.valueOf(pref_compte_stock_user),pref_code_depot);
+        }else if (pref_mode_type.equals("offline"))
+        {
+            //Toast.makeText(getContext(), ""+pref_code_depot+" "+pref_compte_stock_user, Toast.LENGTH_LONG).show();
+
+            dataListe = new ArrayList<>();
+            dataListe = tStockDepot.GetStockParArticle(getContext(), dataListe,pref_code_depot, pref_compte_stock_user);
+            _tStoclAdapter =  new tStockAdapter(getContext(),dataListe);
+            recyclerViewStock.setAdapter(_tStoclAdapter);
+
+            progressBarLoadStock.setVisibility(View.GONE);
+
+            _tStoclAdapter.notifyDataSetChanged();
+        }else
+        {}
 
 
 

@@ -11,6 +11,8 @@ public class PanierAttenteResponse {
     private String codeArticle;
     @SerializedName("NumOperation")
     private String numOperation;
+    @SerializedName("NumMvtStock")
+    private String numMvtStock;
     @SerializedName("RefComptabilite")
     private String refComptabilite;
     @SerializedName("DesignationArticle")
@@ -99,6 +101,14 @@ public class PanierAttenteResponse {
 
     public void setNumOperation(String numOperation) {
         this.numOperation = numOperation;
+    }
+
+    public String getNumMvtStock() {
+        return numMvtStock;
+    }
+
+    public void setNumMvtStock(String numMvtStock) {
+        this.numMvtStock = numMvtStock;
     }
 
     public String getRefComptabilite() {

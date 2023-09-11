@@ -19,6 +19,8 @@ public class ComptabiliteResponse {
     private String designationCompteDebit;
     @SerializedName("DesignationCompteCreditSortie")
     private String designationCreditSortie;
+    @SerializedName("NumMvtCompte")
+    private String numMvtCompte;
 
 
     public ComptabiliteResponse() {
@@ -27,6 +29,14 @@ public class ComptabiliteResponse {
 
     public String getNumOperation() {
         return numOperation;
+    }
+
+    public String getNumMvtCompte() {
+        return numMvtCompte;
+    }
+
+    public void setNumMvtCompte(String numMvtCompte) {
+        this.numMvtCompte = numMvtCompte;
     }
 
     public void setNumOperation(String numOperation) {

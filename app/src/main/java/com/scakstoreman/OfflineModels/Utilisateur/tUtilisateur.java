@@ -19,7 +19,7 @@ import java.util.List;
 
 public class tUtilisateur {
     public static  String TABLE_NAME = "tUtilisateur";
-    public static  String PRIMARY_KEY = "IdUtilisareur";
+    public static  String PRIMARY_KEY = "NomUtilisateur";
 
     private int IdUtilisareur;
     private String NomUtilisateur,MotPasseUtilisateur,NiveauUtilisateur,
@@ -86,7 +86,7 @@ public class tUtilisateur {
     public static void createSqlTable(SQLiteDatabase db){
         //creation de la table dans SQL LITE
         db.execSQL("CREATE TABLE IF NOT EXISTS `tUtilisateur` (\n" +
-                "  `IdUtilisareur` INTEGER PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
+                "  `IdUtilisateur` INTEGER PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
                 "  `NomUtilisateur` varchar(90)  UNIQUE,\n" +
                 "  `MotPasseUtilisateur` varchar(50) default(null),\n" +
                 "  `NiveauUtilisateur` varchar(50) default(null),\n" +
@@ -111,7 +111,7 @@ public class tUtilisateur {
             Log.e("Users","false");
             DatabaseHandler.getInstance(context).updateTABLEall(TABLE_NAME +
                             "",
-                    PRIMARY_KEY,myObject.getIdUtilisareur()+"",contentValues);
+                    PRIMARY_KEY,myObject.getNomUtilisateur()+"",contentValues);
             return false;
         }else {
             //db.close();

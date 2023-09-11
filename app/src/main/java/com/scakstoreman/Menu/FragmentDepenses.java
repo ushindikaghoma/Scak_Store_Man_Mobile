@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -31,11 +32,17 @@ import com.scakstoreman.Article.data.ArticleAdapter;
 import com.scakstoreman.Comptabilite.data.ComptabiliteRepository;
 import com.scakstoreman.Comptabilite.data.ComptabiliteResponse;
 import com.scakstoreman.Compte.data.CompteRepository;
+import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
+import com.scakstoreman.OfflineModels.Operation.tOperation;
+import com.scakstoreman.OfflineModels.Panier.tPanier;
+import com.scakstoreman.OfflineModels.Utilisateur.currentUsers;
 import com.scakstoreman.Operation.OperationRepository;
 import com.scakstoreman.Operation.OperationResponse;
 import com.scakstoreman.R;
 import com.scakstoreman.dbconnection.DataFromAPI;
+import com.scakstoreman.dbconnection.DatabaseHandler;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -86,7 +93,7 @@ public class FragmentDepenses extends Fragment {
     SharedPreferences preferences;
     public static SharedPreferences.Editor editor;
     String pref_code_depot, pref_compte_user,pref_caisse_depense, pref_compte_stock_user,nom_user,
-            todayDate, prefix_operation;
+            todayDate, prefix_operation, pref_mode_type, codeOperation;
 
     CompteRepository compteRepository;
     DataFromAPI dataFromAPI;
@@ -137,13 +144,27 @@ public class FragmentDepenses extends Fragment {
         nom_user = preferences.getString("pref_nom_user","");
         pref_compte_stock_user = preferences.getString("pref_compte_stock_user","");
         pref_caisse_depense = preferences.getString("pref_compte_depense_user","");
+        pref_mode_type = preferences.getString("pref_mode_type","");
 
         prefix_operation = nom_user.substring(0,2).toUpperCase()+pref_code_depot;
+        codeOperation = tOperation.getMaxId(getContext());
 
-        new AsyncBalandeEtDepense(progress_for_depense, display_balance,
-                                    display_solde_depense,
-                                    Integer.parseInt(pref_compte_user),
-                                    Integer.parseInt(pref_caisse_depense)).execute();
+        if (pref_mode_type.equals("online"))
+        {
+
+            new AsyncBalandeEtDepense(progress_for_depense, display_balance,
+                    display_solde_depense,
+                    Integer.parseInt(pref_compte_user),
+                    Integer.parseInt(pref_caisse_depense)).execute();
+
+        } else if (pref_mode_type.equals("offline"))
+        {
+            progress_for_depense.setVisibility(View.GONE);
+            display_balance.setText("$"+ new DecimalFormat("##.##").format(tComptabilite.getSoldeCompte(getContext(), pref_compte_user)));
+            display_solde_depense.setText("$"+ new DecimalFormat("##.##").format(tComptabilite.getSoldeCompte(getContext(), pref_caisse_depense)));
+
+        }else
+        {}
 
         date_operation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,14 +215,64 @@ public class FragmentDepenses extends Fragment {
                     String date = date_operation.getText().toString();
                     double montant_depense = Double.parseDouble(montant.getText().toString());
 
-                    new AsyncCreateOperation(libelle, Integer.parseInt(pref_caisse_depense),
-                                            Integer.parseInt(pref_compte_user),
-                                            montant, progress_depense, date).execute();
+                    if (pref_mode_type.equals("online"))
+                    {
+                        new AsyncCreateOperation(libelle, Integer.parseInt(pref_caisse_depense),
+                                Integer.parseInt(pref_compte_user),
+                                montant, progress_depense, date).execute();
 
-                    new AsyncBalandeEtDepense(progress_for_depense, display_balance,
-                            display_solde_depense,
-                            Integer.parseInt(pref_compte_user),
-                            Integer.parseInt(pref_caisse_depense)).execute();
+                        new AsyncBalandeEtDepense(progress_for_depense, display_balance,
+                                display_solde_depense,
+                                Integer.parseInt(pref_compte_user),
+                                Integer.parseInt(pref_caisse_depense)).execute();
+                    } else if (pref_mode_type.equals("offline"))
+                    {
+                        tOperation operationObject =  new tOperation(codeOperation,"",libelle.getText().toString(),
+                                todayDate, currentUsers.getCurrentUsers(getContext()).getNomUtilisateur()+"",
+                                todayDate, "",0,0,0,0);
+
+                        //Mvt pour le paiement direct
+                        tComptabilite mvtDepenseDebit = new tComptabilite(0,0,Integer.parseInt(pref_caisse_depense),
+                                0,codeOperation,libelle.getText().toString(),"","","","",
+                                tComptabilite.getMaxId(getContext()),1,montant_depense,0);
+                        tComptabilite mvtDepenseCredit = new tComptabilite(0,0,Integer.valueOf(pref_compte_user),
+                                0,codeOperation,libelle.getText().toString(),"","","","",
+                                tComptabilite.getMaxId(getContext()),1,0,montant_depense);
+
+                        SQLiteDatabase db =  DatabaseHandler.getInstance(getContext()).getWritableDatabase();
+                        db.beginTransaction();
+
+                        if(tOperation.SQLinsertCreate(db,getContext(),operationObject)){
+                            //enregistrement du mouvement compte
+
+                            tComptabilite.SQLinsertCreate(db,getContext(), mvtDepenseDebit);
+                            tComptabilite.SQLinsertCreate(db,getContext(), mvtDepenseCredit);
+
+//                            if (tComptabilite.SQLinsertCreate(db,getContext(), mvtDepenseDebit)
+//                                || tComptabilite.SQLinsertCreate(db,getContext(), mvtDepenseCredit))
+//                            {
+                                tOperation.SQLUpdateOperation(getContext(),codeOperation);
+                                if (tOperation.SQLUpdateOperation(getContext(),codeOperation))
+                                {
+                                    Toast.makeText(getContext(),"Operation bien éffectuée", Toast.LENGTH_SHORT).show();
+                                    libelle.setText("");
+                                    montant.setText("");
+
+                                    display_balance.setText("$"+ new DecimalFormat("##.##").format(tComptabilite.getSoldeCompte(getContext(), pref_compte_user)));
+                                    display_solde_depense.setText("$"+ new DecimalFormat("##.##").format(tComptabilite.getSoldeCompte(getContext(), pref_caisse_depense)));
+
+                                }else
+                                {
+                                    Toast.makeText(getContext(),"Echec!!", Toast.LENGTH_SHORT).show();
+                                }
+//                            }
+
+                        }
+
+                        db.setTransactionSuccessful();
+                        db.endTransaction();
+                        db.close();
+                    }
 
                 }
 

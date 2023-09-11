@@ -31,7 +31,7 @@ public class tArticle {
 
 
 
-    private int etatUpload;
+    private int etatUpload, Id;
     @SerializedName("CategorieArticle")
     private int CategorieArticle;
     @SerializedName("CodeArticle")
@@ -72,12 +72,13 @@ public class tArticle {
 
 
 
-    public tArticle(int categorieArticle, int idArticle, int critique, int compte,
+    public tArticle(int id, int categorieArticle, int idArticle, int critique, int compte,
                     int indicateur, String codeArticle, String desegnationArticle,
                     String creeerPar, String codeDepartement, String dateCreation,
                     String uniteEngro, String uiniteEnDetaille, String barCode,
                     double prixAchat, double prixVente, double qteEnDet,
                     double enstock, double solde) {
+        this.Id = id;
         this.CategorieArticle = categorieArticle;
         this.IdArticle = idArticle;
         this.Critique = critique;
@@ -102,6 +103,10 @@ public class tArticle {
         CodeArticle = codeArticle;
         DesegnationArticle = desegnationArticle;
         PrixAchat = prixAchat;
+    }
+
+    public int getId() {
+        return Id;
     }
 
     public int getCategorieArticle() {
@@ -180,12 +185,13 @@ public class tArticle {
     public static void createSqlTable(SQLiteDatabase db){
         //creation de la table dans SQL LITE
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (\n" +
+                "  `Id` INTEGER PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
                 "  `CategorieArticle` INTEGER ,\n" +
                 "  `CodeArticle` varchar(60)  UNIQUE,\n" +
                 "  `DesegnationArticle` varchar(255),\n" +
                 "  `PrixAchat` double default(0),\n" +
                 "  `PrixVente` double default(0),\n" +
-                "  `IdArticle` integer PRIMARY  KEY AUTOINCREMENT NOT NULL,\n" +
+                "  `IdArticle` integer default(null),\n" +
                 "  `Critique` integer default(null),\n" +
                 "  `CreeerPar` varchar(50) default(null),\n" +
                 "  `CodeDepartement` varchar(50) default(null),\n" +

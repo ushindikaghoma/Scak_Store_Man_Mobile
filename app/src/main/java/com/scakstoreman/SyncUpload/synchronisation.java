@@ -11,6 +11,7 @@ import com.scakstoreman.OfflineModels.Comptabilite.tComptabilite;
 import com.scakstoreman.OfflineModels.Compte.tCompte;
 import com.scakstoreman.OfflineModels.Compte.tGroupeCompte;
 import com.scakstoreman.OfflineModels.Depot.tDepot;
+import com.scakstoreman.OfflineModels.Operation.tOperation;
 import com.scakstoreman.OfflineModels.Panier.tPanier;
 import com.scakstoreman.OfflineModels.PrixClient.tPrix;
 
@@ -47,7 +48,7 @@ public class synchronisation extends AsyncTask<String,Void,String> {
         tCompte.getDataFromServer(context);
         tComptabilite.getDataFromServer(context);
         tGroupeCompte.getDataFromServer(context);
-//        tOperation.getDataFromServer(context,currentUsers.getCurrentUsers(context).getCompte()+"");
+        tOperation.getDataFromServer(context);
 //        tMvmtOperation.getDataFromServer(context,currentUsers.getCurrentUsers(context).getCompte()+"");
         return null;
     }
