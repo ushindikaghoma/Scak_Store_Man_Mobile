@@ -12,4 +12,6 @@ public interface ComptabiliteConnexion {
 
     @POST("api/Comptabilite/SaveMvt")
     Call<Reponse> SaveMvtCompte(@Body ComptabiliteResponse comptabiliteResponse);
+    @POST("api/Comptabilite/SaveMvtOneTwo")
+    Call<Reponse> SaveMvtCompteOneTwo(@Body MvtResponse mvtResponse);
 }

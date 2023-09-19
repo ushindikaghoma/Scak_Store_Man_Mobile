@@ -1,5 +1,6 @@
 package com.scakstoreman.OfflineModels.Comptabilite;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,6 +11,8 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.scakstoreman.Comptabilite.data.ComptabiliteRepository;
 import com.scakstoreman.Comptabilite.data.ComptabiliteResponse;
+import com.scakstoreman.Comptabilite.data.MvtRepository;
+import com.scakstoreman.Comptabilite.data.MvtResponse;
 import com.scakstoreman.OfflineModels.Compte.tCompte;
 import com.scakstoreman.OfflineModels.Panier.PayModel;
 import com.scakstoreman.OfflineModels.Panier.tPanierAttente;
@@ -20,8 +23,10 @@ import com.scakstoreman.Panier.data.PanierAttenteResponse;
 import com.scakstoreman.dbconnection.DatabaseHandler;
 import com.scakstoreman.mes_classes.getTimesTamps;
 import com.scakstoreman.serveur.DonneesFromMySQL;
+import com.scakstoreman.serveur.adresseServeur;
 import com.scakstoreman.serveur.me_URL;
 import com.scakstoreman.serveur.sendDataPost;
+import com.scakstoreman.serveur.sendDataPostJSON;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -170,7 +175,7 @@ public class tComptabilite {
         String str = String.format("%03d",maxID);
 //        return "OP|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+"|"+ getTimesTamps.getimeStats()+"|"+maxID;
         return currentUsers.getCurrentUsers(context).getDepotAffecter()+
-                "|MVT|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+""+"|"+str+"|"+ getTimesTamps.getimeStats();
+                "|MVT|"+ currentUsers.getCurrentUsers(context).getIdUtilisareur()+""+"|"+ getTimesTamps.getimeStats()+"|"+maxID;
     }
 
     public static double getSoldeCompte(Context context,String numCompte){
@@ -391,10 +396,8 @@ public class tComptabilite {
         return  reponse;
     }
 
-
-    public static void uploadDataToServer(Context context,tComptabilite myObject)
+    public static void _uploadDataToServer(Context context, tComptabilite myObject)
     {
-
         ComptabiliteRepository comptabiliteRepository = ComptabiliteRepository.getInstance();
         ComptabiliteResponse comptabiliteResponse = new ComptabiliteResponse();
 
@@ -402,8 +405,8 @@ public class tComptabilite {
         comptabiliteResponse.setLibelle(myObject.getDetails());
         comptabiliteResponse.setNumCompteDebitEntree(myObject.getNumCompte());
         comptabiliteResponse.setNumCompteCreditSortie(myObject.getNumCompte());
-        comptabiliteResponse.setMontant(myObject.getEntree());
-        comptabiliteResponse.setMontant(myObject.getSortie());
+        comptabiliteResponse.setEntree(myObject.getEntree());
+        comptabiliteResponse.setSortie(myObject.getSortie());
         comptabiliteResponse.setQte(1);
         comptabiliteResponse.setDesignationCompteDebit("");
         comptabiliteResponse.setDesignationCreditSortie("");
@@ -426,7 +429,82 @@ public class tComptabilite {
                         DatabaseHandler.getInstance(context).updateEtatUpload(
                                 TABLE_NAME,"EtatUpload",
                                 "NumMvtCompte",myObject.getNumMvtCompte(),1);
-//                        Log.e("susss","true");
+                        Log.e("susss","Entree:"+myObject.getEntree());
+                        Log.e("susss","Sortie:"+myObject.getSortie());
+                    }else{
+                        if (message.contains("Cannot insert duplicate key row in object 'dbo.tMvtCompte' with unique index 'IX_tMvtCompte_1'")){
+                            DatabaseHandler.getInstance(context).updateEtatUpload(
+                                    TABLE_NAME,"EtatUpload",
+                                    "NumMvtCompte",myObject.getNumMvtCompte(),1);
+                        }
+                    }
+
+//                    DatabaseHandler.getInstance(context).updateEtatUpload(
+//                            TABLE_NAME,"etatUpload",
+//                            "numOperation",myObject.getNumOperation(),1);
+//                    Toast.makeText(context, "Operation créee", Toast.LENGTH_LONG).show();
+//                    Log.e("Ope",""+response);
+                }
+                else
+                {
+                    switch (response.code())
+                    {
+                        case 404:
+                            Toast.makeText(context, "Serveur introuvable", Toast.LENGTH_LONG).show();
+                            break;
+                        case 500:
+                            Toast.makeText(context, "Serveur en pane",Toast.LENGTH_LONG).show();
+                            break;
+                        default:
+                            Toast.makeText(context, "Erreur inconnu", Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Reponse> call, Throwable t) {
+                Toast.makeText(context, "Probleme de connection", Toast.LENGTH_LONG).show();
+            }
+        });
+
+    }
+
+    public static void uploadDataToServer(Context context,tComptabilite myObject)
+    {
+
+        MvtRepository mvtRepository = MvtRepository.getInstance();
+        MvtResponse mvtResponse = new MvtResponse();
+
+        mvtResponse.setNumCompte(myObject.getNumCompte());
+        mvtResponse.setLibeleDeCompte("");
+        mvtResponse.setEntree(myObject.getEntree());
+        mvtResponse.setDetails(myObject.getDetails());
+        mvtResponse.setCodeLibele(myObject.getCodeLibele());
+        mvtResponse.setQte(myObject.getQte());
+        mvtResponse.setSortie(myObject.getSortie());
+        mvtResponse.setNumOperation(myObject.getNumOperation());
+        mvtResponse.setNumMvtCompte(myObject.getNumMvtCompte());
+
+        mvtRepository.comptabiliteConnexion().SaveMvtCompteOneTwo(mvtResponse).enqueue(new Callback<Reponse>()
+        {
+            @Override
+            public void onResponse(Call<Reponse> call, Response<Reponse> response) {
+                if (response.isSuccessful())
+                {
+
+
+                    Reponse saveee = response.body();
+                    boolean success = saveee.isSucces();
+                    String message = saveee.getMessage();
+                    Log.e("OPERATION",response.body().toString());
+                    if(success){
+                        //                    //UPDATE DE LA TABLE POUR SIGNALER QUE L'ETAT DE BESOINS EST SYNCHRONISER
+                        DatabaseHandler.getInstance(context).updateEtatUpload(
+                                TABLE_NAME,"EtatUpload",
+                                "NumMvtCompte",myObject.getNumMvtCompte(),1);
+                        Log.e("susss","Entree:"+myObject.getEntree());
+                        Log.e("susss","Sortie:"+myObject.getSortie());
                     }else{
                         if (message.contains("Cannot insert duplicate key row in object 'dbo.tMvtCompte' with unique index 'IX_tMvtCompte_1'")){
                             DatabaseHandler.getInstance(context).updateEtatUpload(

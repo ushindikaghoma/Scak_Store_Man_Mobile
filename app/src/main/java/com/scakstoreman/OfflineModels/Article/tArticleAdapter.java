@@ -44,11 +44,14 @@ import com.scakstoreman.Panier.data.PanierAttenteResponse;
 import com.scakstoreman.R;
 import com.scakstoreman.dbconnection.DataFromAPI;
 import com.scakstoreman.dbconnection.DatabaseHandler;
+import com.scakstoreman.mes_classes.format_double;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -203,7 +206,7 @@ public class tArticleAdapter extends RecyclerView.Adapter<tArticleAdapter.tArtic
                                     view.getContext().startActivity(new Intent(context, NouveauAchatActivity.class)
                                             .putExtra("num_operation", codeOperation)
                                             .putExtra("libelle", libelle)
-                                            .putExtra("montant_entree", panierObject.getEntree()));
+                                            .putExtra("montant_entree",panierObject.getEntree()));
 //
 
                                     dialog.dismiss();

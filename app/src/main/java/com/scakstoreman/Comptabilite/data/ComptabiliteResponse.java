@@ -15,6 +15,10 @@ public class ComptabiliteResponse {
     private int qte;
     @SerializedName("Montant")
     private double montant;
+    @SerializedName("Entree")
+    private double entree;
+    @SerializedName("Sortie")
+    private double sortie;
     @SerializedName("DesignationCompteDebitEntree")
     private String designationCompteDebit;
     @SerializedName("DesignationCompteCreditSortie")
@@ -81,6 +85,22 @@ public class ComptabiliteResponse {
 
     public void setMontant(double montant) {
         this.montant = montant;
+    }
+
+    public double getEntree() {
+        return entree;
+    }
+
+    public void setEntree(double entree) {
+        this.entree = entree;
+    }
+
+    public double getSortie() {
+        return sortie;
+    }
+
+    public void setSortie(double sortie) {
+        this.sortie = sortie;
     }
 
     public String getDesignationCompteDebit() {

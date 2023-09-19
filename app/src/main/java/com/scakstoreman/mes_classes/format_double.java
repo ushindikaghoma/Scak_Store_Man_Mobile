@@ -12,6 +12,11 @@ public class format_double
         String valeur = new DecimalFormat("###,###,###,###,###,###,###.##").format(value);
         return valeur;
     }
+    public static String   getDoubleFormat(double value)
+    {
+        String valeur = new DecimalFormat("#,###.####").format(value);
+        return valeur;
+    }
 
     public static String getDoubleFormatedAsDouble(double value){
         String valeur = new DecimalFormat("#####################.##").format(value);

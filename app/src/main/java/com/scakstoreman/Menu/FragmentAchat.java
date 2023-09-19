@@ -137,7 +137,7 @@ public class FragmentAchat extends Fragment {
         date_debut.setText(todayDate);
         date_fin.setText(todayDate);
 
-        Toast.makeText(getContext(), "Usher"+pref_mode_type, Toast.LENGTH_SHORT).show();
+       // Toast.makeText(getContext(), "Usher"+pref_mode_type, Toast.LENGTH_SHORT).show();
 
         if (pref_mode_type.equals("online"))
         {

@@ -87,6 +87,8 @@ public class ModeType extends AppCompatActivity {
                 startActivity(intent);
                 finish();
 
+                //Toast.makeText(ModeType.this,"Pas permis!Utlisez le mode offline",Toast.LENGTH_SHORT).show();
+
             }
         });
     }

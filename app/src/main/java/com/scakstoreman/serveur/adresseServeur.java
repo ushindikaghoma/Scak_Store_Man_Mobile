@@ -14,7 +14,7 @@ public class adresseServeur {
     private SharedPreferences.Editor editor;
 
 //    public static String adresseIPNEW = "http://192.168.1.108:8081/taxeWebApi/";
-    public static String adresseIPNEW = "http://afrisofttech-001-site44.btempurl.com/";
+    public static String adresseIPNEW = "http://afrisofttech-001-site52.btempurl.com/";
 
 
     public adresseServeur(Context context) {
@@ -27,7 +27,8 @@ public class adresseServeur {
         adresseIP ="http://192.168.126.162:8081";
         adresseIP ="http://192.168.1.108:8081/taxeWebApi";
 //        adresseIP ="http://afrisofttech-001-site44.btempurl.com";
-        adresseIP ="http://192.168.1.30/TouchBistroIshango";
+        //adresseIP ="http://192.168.87.43/TouchBistroIshango";
+        adresseIP ="http://afrisofttech-001-site52.btempurl.com";
     }
 
     public String getAdresseIP() {

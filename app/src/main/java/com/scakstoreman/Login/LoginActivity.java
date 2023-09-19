@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
         pref_mode_type = preferences.getString("pref_mode_type","");
         mode_type = getIntent().getStringExtra("mode_type");
 
-        Toast.makeText(LoginActivity.this, ""+mode_type, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(LoginActivity.this, ""+mode_type, Toast.LENGTH_SHORT).show();
 
 
         depotRepository = DepotRepository.getInstance();
@@ -115,7 +115,7 @@ public class LoginActivity extends AppCompatActivity {
                     }else if(pref_mode_type.equals("offline"))
                     {
                         new connexionClass(phone_edt.getText().toString(),password_edt.getText().toString()).execute();
-                        Toast.makeText(LoginActivity.this, ""+dataFromAPI.GetComptStockAffecte("DP1"), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(LoginActivity.this, ""+dataFromAPI.GetComptStockAffecte("DP1"), Toast.LENGTH_SHORT).show();
                     }else
                     {
                         Toast.makeText(LoginActivity.this, "Mode inconnu"+pref_mode_type,Toast.LENGTH_SHORT).show();
@@ -392,7 +392,7 @@ public class LoginActivity extends AppCompatActivity {
                         //tUtilisateur myObject = gson.fromJson(jsonArray.toString(), tUtilisateur.class);
                         //verification de l'etat du phone
 
-                        Log.e("User object",""+dataFromAPI.GetComptStockAffecte(myObject.getDepotAffecter()));
+                        //Log.e("User object",""+dataFromAPI.GetComptStockAffecte(myObject.getDepotAffecter()));
 
                         //  Toast.makeText(context, ""+myObject.getNomUtilisateur(), Toast.LENGTH_SHORT).show();
 
