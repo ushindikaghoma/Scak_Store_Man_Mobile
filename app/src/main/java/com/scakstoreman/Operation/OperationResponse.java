@@ -25,6 +25,8 @@ public class OperationResponse {
     private double montant;
     @SerializedName("QteEntree")
     private double qteEntree;
+    @SerializedName("Etat")
+    private int etat;
     public OperationResponse() {
     }
 
@@ -32,6 +34,14 @@ public class OperationResponse {
         this.libelle = libelle;
         this.dateOperation = dateOperation;
         this.montant = montant;
+    }
+
+    public int getEtat() {
+        return etat;
+    }
+
+    public void setEtat(int etat) {
+        this.etat = etat;
     }
 
     public String getNumOperation() {

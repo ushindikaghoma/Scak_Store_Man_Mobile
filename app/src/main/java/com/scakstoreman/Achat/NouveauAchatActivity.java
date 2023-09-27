@@ -145,6 +145,7 @@ public class NouveauAchatActivity extends AppCompatActivity {
 
         nf = NumberFormat.getNumberInstance(Locale.US);
         df = (DecimalFormat)nf;
+        df.setGroupingUsed(false);
 
         montant_entree_string = df.format(montant_entree_extra);
 //
@@ -338,6 +339,7 @@ public class NouveauAchatActivity extends AppCompatActivity {
                     recyclerViewPanier.setAdapter(adapterPanier);
 
                     textViewDisplayTotal.setText(""+ new DecimalFormat("##.##").format(_entree_totale));
+                    //textViewDisplayTotal.setText(format_double.getDoubleFormatedAsDouble(_entree_totale));
 
                 }
             }
@@ -386,7 +388,8 @@ public class NouveauAchatActivity extends AppCompatActivity {
             solde_caisse.setText(""+tComptabilite.getSoldeCompte(NouveauAchatActivity.this, pref_compte_user));
 
             total_a_payer.setText("$"+textViewDisplayTotal.getText().toString());
-            montant_total.setText(df.format(Double.valueOf(textViewDisplayTotal.getText().toString())));
+            //String montant = df.format(Double.valueOf(textViewDisplayTotal.getText().toString()));
+            montant_total.setText(montant_entree_string);
 
         }
         annuler.setOnClickListener(new View.OnClickListener() {

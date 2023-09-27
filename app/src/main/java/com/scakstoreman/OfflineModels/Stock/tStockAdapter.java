@@ -192,20 +192,22 @@ public class tStockAdapter extends RecyclerView.Adapter<tStockAdapter.tStockList
                                         todayDate, currentUsers.getCurrentUsers(context).getNomUtilisateur()+"",
                                         todayDate, "",0,0,0);
 
-                                tPanierAttente panierObjectEntree = new tPanierAttente(codeArticle,"",codeDepotEntree,codeOperationAttente,
-                                        "","","","",tPanierAttente.getMaxId(context),prix_depot,
-                                        0,quantite_entree,0,0,0,0,0,total_entree,
-                                        0,0,0,0,0,0,0);
-                                tPanierAttente panierObjectSortie = new tPanierAttente(codeArticle,"",pref_code_depot,codeOperationAttente,
-                                        "","","","",tPanierAttente.getMaxId(context),prix_depot,
-                                        0,0,quantite_entree,total_entree,0,0,0,0,
-                                        0,0,0,0,0,0,0);
 
                                         SQLiteDatabase db =  DatabaseHandler.getInstance(context).getWritableDatabase();
                                         db.beginTransaction();
                                         if(tOperationAttente.SQLinsertCreate(db,context,operationObject)){
                                             //enregistrement du mouvement stock
+
+                                            tPanierAttente panierObjectEntree = new tPanierAttente(codeArticle,"",codeDepotEntree,codeOperationAttente,
+                                                    "","","","",tPanierAttente.getMaxId(context),prix_depot,
+                                                    0,quantite_entree,0,0,0,0,0,total_entree,
+                                                    0,0,0,0,0,0,0);
                                             tPanierAttente.SQLinsertCreate(db,context,panierObjectEntree);
+
+                                            tPanierAttente panierObjectSortie = new tPanierAttente(codeArticle,"",pref_code_depot,codeOperationAttente,
+                                                    "","","","",tPanierAttente.getMaxId(context),prix_depot,
+                                                    0,0,quantite_entree,total_entree,0,0,0,0,
+                                                    0,0,0,0,0,0,0);
                                             tPanierAttente.SQLinsertCreate(db,context,panierObjectSortie);
 
                                             Toast.makeText(context, "Expédition éffectuée avec succès", Toast.LENGTH_SHORT).show();

@@ -1,5 +1,7 @@
 package com.scakstoreman.Menu;
 
+import static com.scakstoreman.OfflineModels.Suppression.tSuppression.GetSuppression;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -74,6 +76,8 @@ public class ContentMenuActivty extends AppCompatActivity {
         mToogle = new ActionBarDrawerToggle(this, layout, R.string.open, R.string.close);
         layout.addDrawerListener(mToogle);
         mToogle.syncState();
+
+        //GetSuppression(ContentMenuActivty.this);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

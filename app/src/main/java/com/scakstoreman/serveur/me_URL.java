@@ -110,6 +110,11 @@ public class me_URL {
     {
         return url +"/api/Operation/GetOperationAll";
     }
+
+    public String GetOperationSupprimees()
+    {
+        return url + "/api/Operation/GetOperationSupprimeesAll";
+    }
     //+++OPERATIONS+++=======
 
 

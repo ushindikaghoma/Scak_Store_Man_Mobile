@@ -27,7 +27,7 @@ public class adresseServeur {
         adresseIP ="http://192.168.126.162:8081";
         adresseIP ="http://192.168.1.108:8081/taxeWebApi";
 //        adresseIP ="http://afrisofttech-001-site44.btempurl.com";
-        //adresseIP ="http://192.168.87.43/TouchBistroIshango";
+//        adresseIP ="http://192.168.252.43/TouchBistroIshango";
         adresseIP ="http://afrisofttech-001-site52.btempurl.com";
     }
 

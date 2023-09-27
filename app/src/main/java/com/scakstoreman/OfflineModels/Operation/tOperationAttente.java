@@ -155,7 +155,7 @@ public class tOperationAttente {
             try {
                 jsonObject1 = jsonArray.getJSONObject(i);
                 Gson gson = new Gson(); // Or use new GsonBuilder().create();
-                tOperation myObject = gson.fromJson(jsonObject1.toString(), tOperation.class);
+                OperationAttenteInsertModel myObject = gson.fromJson(jsonObject1.toString(), OperationAttenteInsertModel.class);
 
                 uploadDataToServer(context,myObject);
             } catch (JSONException e) {
@@ -167,20 +167,21 @@ public class tOperationAttente {
     }
 
 
-    public static void uploadDataToServer(Context context,tOperation myObject)
+    public static void uploadDataToServer(Context context,OperationAttenteInsertModel myObject)
     {
 
         OperationRepository operationRepository = OperationRepository.getInstance();
         OperationResponse operationResponse = new OperationResponse();
 
         operationResponse.setNumOperation(myObject.getNumOperation());
-        operationResponse.setCodeClient(myObject.getCodeClient());
+        operationResponse.setCodeClient("");
         operationResponse.setDateSysteme(new date_du_jour().getDatee());
         operationResponse.setLibelle(myObject.getLibelle());
         operationResponse.setNomUtilisateur(myObject.getNomUt());
         operationResponse.setDateOperation(new date_du_jour().getDatee());
         operationResponse.setCodeEtatdeBesoin("0");
-        operationResponse.setValider(myObject.getValider());
+        operationResponse.setValider(0);
+        operationResponse.setEtat(myObject.getEtat());
 
         operationRepository.operationConnexion().SaveOperationAttente(operationResponse).enqueue(new Callback<Reponse>()
         {

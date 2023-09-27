@@ -68,7 +68,7 @@ public class tPrix {
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (\n" +
                 "  `Id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                 "  `Code` INTEGER UNIQUE NOT NULL,\n" +
-                "  `CodeArticle` varchar(50),\n" +
+                "  `CodeArticle` varchar(50) UNIQUE,\n" +
                 "  `NumCompte` integer,\n" +
                 "  `PrixUnitaire` double default(0)\n" +
                 ")");
@@ -83,7 +83,7 @@ public class tPrix {
             Log.e(TABLE_NAME,"false");
             DatabaseHandler.getInstance(context).updateTABLEall(TABLE_NAME +
                             "",
-                    PRIMARY_KEY,myObject.getId()+"",contentValues);
+                    PRIMARY_KEY_1,myObject.getCodeArticle()+"",contentValues);
             return false;
         }else {
             //db.close();
